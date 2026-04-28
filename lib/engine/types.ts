@@ -58,6 +58,30 @@ export interface ScoreContribution {
   cappedAt?: number;
 }
 
+export interface GraphNode {
+  id: string;
+  label?: string;
+  category?: string;
+  totalIn: number;
+  totalOut: number;
+  txCount: number;
+  isSubject?: boolean;
+  isFlagged?: boolean;
+}
+
+export interface GraphEdge {
+  source: string;
+  target: string;
+  value: number;
+  txCount: number;
+}
+
+export interface CounterpartyGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  truncatedAt: number;
+}
+
 export interface RiskReport {
   address: string;
   chain: ChainSlug;
@@ -66,6 +90,7 @@ export interface RiskReport {
   scoreBreakdown: ScoreContribution[];
   recommendation: RiskRecommendation;
   flags: Flag[];
+  graph: CounterpartyGraph;
   summary: {
     totalTransactions: number;
     firstSeen: string | null;

@@ -11,6 +11,7 @@ import {
   recommendation,
 } from './scorer.js';
 import { labelFor } from '../data/labels.js';
+import { computeGraph } from './graph.js';
 
 const VERSION = '0.3.0';
 
@@ -72,6 +73,7 @@ export function analyze(
   }));
   const score = computeRiskScore(flags);
   const scoreBreakdown = computeScoreBreakdown(flags);
+  const graph = computeGraph(ctx, flags);
 
   return {
     address: ctx.address,
@@ -81,6 +83,7 @@ export function analyze(
     scoreBreakdown,
     recommendation: recommendation(score, flags),
     flags,
+    graph,
     summary: {
       totalTransactions: transactions.length,
       firstSeen: ctx.firstSeen ? new Date(ctx.firstSeen * 1000).toISOString() : null,

@@ -10,15 +10,8 @@ export function FinalCta() {
         and regulated exchanges can request early API access today.
       </p>
       <div className="cta-actions">
-        <Link href="/scan" className="btn-gold">Run a scan now →</Link>
-        <a
-          className="btn-line"
-          href="https://github.com/AIRWAfinance/ChainSight"
-          target="_blank"
-          rel="noreferrer"
-        >
-          View source on GitHub
-        </a>
+        <Link href="/beta" className="btn-gold">Request beta access →</Link>
+        <Link href="/scan" className="btn-line">Run a scan</Link>
       </div>
     </section>
   );

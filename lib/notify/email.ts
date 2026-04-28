@@ -125,6 +125,49 @@ ${opts.report.flags.map((f) => `    <li><b>[${f.severity.toUpperCase()}]</b> ${e
   }
 }
 
+interface BetaSignupPayload {
+  email: string;
+  role?: string;
+  company?: string;
+  notes?: string;
+}
+
+export async function sendBetaSignup(payload: BetaSignupPayload): Promise<boolean> {
+  const transporter = getTransporter();
+  if (!transporter) return false;
+
+  const inbox =
+    process.env['BETA_INBOX_EMAIL'] ?? process.env['SMTP_USER'] ?? '';
+  if (!inbox) return false;
+
+  const from = process.env['SMTP_FROM'] ?? 'ChainSight <noreply@chainsight.local>';
+  const subject = `New ChainSight beta signup: ${payload.email}`;
+  const lines = [
+    `Email:    ${payload.email}`,
+    `Role:     ${payload.role ?? '—'}`,
+    `Company:  ${payload.company ?? '—'}`,
+    '',
+    'Notes:',
+    payload.notes ?? '(none)',
+    '',
+    `Received: ${new Date().toISOString()}`,
+  ];
+
+  try {
+    await transporter.sendMail({
+      from,
+      to: inbox,
+      replyTo: payload.email,
+      subject,
+      text: lines.join('\n'),
+    });
+    return true;
+  } catch (err) {
+    console.error('[beta-notify] send failed:', err);
+    return false;
+  }
+}
+
 function shortAddr(s: string): string {
   return s.length <= 12 ? s : `${s.slice(0, 6)}…${s.slice(-4)}`;
 }
