@@ -1419,11 +1419,11 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   background: var(--ink-0);
   border: 1px solid var(--line);
   overflow: hidden;
-  min-height: 520px;
+  min-height: 620px;
 }
 .graph-loading,
 .graph-empty {
-  height: 520px;
+  height: 620px;
   display: grid;
   place-items: center;
   font-family: var(--font-serif);

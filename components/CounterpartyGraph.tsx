@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CounterpartyGraph as GraphData } from '@/lib/engine/types';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), {
@@ -54,6 +54,28 @@ function shortAddr(s: string): string {
 export function CounterpartyGraph({ graph }: CounterpartyGraphProps) {
   const [hovered, setHovered] = useState<RenderNode | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const fgRef = useRef<unknown>(null);
+
+  // Tune forces so nodes spread out — the default link distance and charge
+  // strength pack labels on top of each other.
+  useEffect(() => {
+    type ForceMethod = {
+      d3Force?: (name: string) => { strength?: (v: number) => unknown; distance?: (v: number) => unknown } | undefined;
+      d3ReheatSimulation?: () => void;
+    };
+    const fg = fgRef.current as ForceMethod | null;
+    if (!fg || typeof fg.d3Force !== 'function') return;
+    const charge = fg.d3Force('charge');
+    if (charge && typeof charge.strength === 'function') {
+      charge.strength(-520);
+    }
+    const link = fg.d3Force('link');
+    if (link && typeof link.distance === 'function') {
+      link.distance(140);
+      if (typeof link.strength === 'function') link.strength(0.35);
+    }
+    fg.d3ReheatSimulation?.();
+  }, [graph]);
 
   const data = useMemo(() => {
     const maxVol = Math.max(
@@ -93,20 +115,25 @@ export function CounterpartyGraph({ graph }: CounterpartyGraphProps) {
     <div className="graph-wrap" ref={containerRef}>
       <div className="graph-canvas">
         <ForceGraph2D
+          ref={fgRef as never}
           graphData={data}
           width={typeof window !== 'undefined' ? Math.min(900, containerRef.current?.offsetWidth ?? 800) : 800}
-          height={520}
+          height={620}
           backgroundColor="#0a0807"
           nodeRelSize={4}
-          linkColor={() => 'rgba(184, 173, 153, 0.25)'}
+          d3VelocityDecay={0.32}
+          warmupTicks={120}
+          cooldownTicks={300}
+          linkColor={() => 'rgba(184, 173, 153, 0.22)'}
           linkWidth={(l) => {
             const link = l as RenderLink;
-            return 0.5 + Math.min(3, Math.log10(1 + link.value));
+            return 0.4 + Math.min(2.4, Math.log10(1 + link.value));
           }}
           linkDirectionalParticles={1}
+          linkDirectionalParticleWidth={2}
           linkDirectionalParticleSpeed={(l) => {
             const link = l as RenderLink;
-            return 0.001 + Math.min(0.012, link.value / 1000);
+            return 0.001 + Math.min(0.01, link.value / 1500);
           }}
           linkDirectionalParticleColor={() => '#d4a949'}
           nodeCanvasObject={(node, ctx, globalScale) => {
@@ -131,14 +158,26 @@ export function CounterpartyGraph({ graph }: CounterpartyGraphProps) {
               ctx.stroke();
             }
 
-            // Label
+            // Label with translucent backdrop so it remains readable
+            // when nodes/edges overlap.
             const label = n.label ?? shortAddr(n.id);
-            const fontSize = Math.max(10, 14 / globalScale);
+            const fontSize = Math.max(11, 13 / globalScale);
             ctx.font = `${fontSize}px Inter Tight, sans-serif`;
+            const textWidth = ctx.measureText(label).width;
+            const padX = 4;
+            const padY = 2;
+            const labelY = n.y + n.val / 2 + 4;
+            ctx.fillStyle = 'rgba(10, 8, 7, 0.78)';
+            ctx.fillRect(
+              n.x - textWidth / 2 - padX,
+              labelY,
+              textWidth + padX * 2,
+              fontSize + padY * 2,
+            );
             ctx.fillStyle = '#ece7df';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'top';
-            ctx.fillText(label, n.x, n.y + n.val / 2 + 2);
+            ctx.fillText(label, n.x, labelY + padY);
           }}
           onNodeHover={(node) => setHovered((node as RenderNode | null) ?? null)}
           onNodeClick={(node) => setHovered(node as RenderNode)}
