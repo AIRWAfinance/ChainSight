@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ChainSight — Neo-Brutalist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f1e8;
+    --paper: #ffffff;
+    --ink: #111111;
+    --ink-2: #2a2a2a;
+    --orange: #ff5c1c;
+    --green: #1f9e54;
+    --yellow: #ffd62a;
+    --shadow: #111111;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: 'Space Grotesk', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .display { font-family: 'Archivo Black', 'Space Grotesk', sans-serif; }
+
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 1.5rem; }
+
+  /* Strip */
+  .strip {
+    background: var(--ink); color: var(--bg);
+    font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+    letter-spacing: .14em; text-transform: uppercase;
+    padding: .55rem 0;
+    overflow: hidden;
+  }
+  .strip .row { display: flex; gap: 3rem; padding: 0 1.5rem; white-space: nowrap; }
+  .strip span b { color: var(--yellow); margin-right: .5rem; }
+
+  /* Nav */
+  nav.top {
+    border-bottom: 3px solid var(--ink);
+    padding: 1.25rem 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: center; gap: .85rem; }
+  .brand .logo {
+    background: var(--ink); color: var(--bg); padding: .35rem .65rem;
+    font-family: 'Archivo Black', sans-serif; font-size: 1.25rem; letter-spacing: -.02em;
+  }
+  .brand .by { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; }
+  nav.top ul { display: flex; gap: 2rem; list-style: none; padding: 0; margin: 0; font-weight: 500; font-size: .92rem; }
+  nav.top a:hover { background: var(--yellow); }
+  .btn-cta {
+    background: var(--orange); color: #fff;
+    padding: .7rem 1.15rem; font-weight: 700;
+    border: 3px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--shadow);
+    transition: transform .12s ease, box-shadow .12s ease;
+  }
+  .btn-cta:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--shadow); }
+
+  /* Hero */
+  .hero {
+    padding: 4.5rem 0 3rem;
+    border-bottom: 3px solid var(--ink);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero h1 {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(3rem, 1rem + 8vw, 8.5rem);
+    line-height: .9; letter-spacing: -.04em;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .hero h1 .pill {
+    display: inline-block;
+    background: var(--orange); color: #fff;
+    padding: .1em .35em;
+    transform: rotate(-1deg);
+  }
+  .hero h1 .pill.green { background: var(--green); transform: rotate(1deg); }
+  .hero .sub {
+    margin-top: 2rem; max-width: 60ch;
+    font-size: 1.15rem; line-height: 1.55; font-weight: 400;
+  }
+  .hero .sub b { background: var(--yellow); padding: 0 .15em; }
+
+  .hero .badges {
+    display: flex; gap: .75rem; flex-wrap: wrap; margin-top: 2rem;
+  }
+  .badge {
+    border: 2px solid var(--ink); padding: .45rem .75rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .75rem;
+    background: var(--paper);
+    box-shadow: 3px 3px 0 var(--shadow);
+  }
+  .badge b { color: var(--orange); }
+
+  /* Scan */
+  .scan {
+    padding: 4rem 0; border-bottom: 3px solid var(--ink);
+    background: var(--ink); color: var(--bg);
+  }
+  .scan-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 3rem; align-items: end; }
+  .scan h2 {
+    font-family: 'Archivo Black', sans-serif; font-size: clamp(2rem, 1rem + 4vw, 4rem);
+    text-transform: uppercase; line-height: .95; letter-spacing: -.03em; margin: 0;
+  }
+  .scan h2 span { background: var(--yellow); color: var(--ink); padding: 0 .25em; }
+  .scan p { color: #d6d2c2; max-width: 40ch; line-height: 1.55; margin-top: 1.25rem; }
+
+  .scan-form {
+    background: var(--paper); color: var(--ink);
+    border: 3px solid var(--paper);
+    box-shadow: 8px 8px 0 var(--orange);
+  }
+  .scan-form .field {
+    border-bottom: 3px solid var(--ink);
+    padding: 1rem 1.25rem;
+  }
+  .scan-form .field:last-of-type { border-bottom: 3px solid var(--ink); }
+  .scan-form .lbl { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); display: block; margin-bottom: .35rem; }
+  .scan-form input, .scan-form select {
+    width: 100%; border: 0; padding: 0; outline: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 1rem; background: transparent; color: var(--ink);
+  }
+  .scan-form button {
+    width: 100%; border: 0; cursor: pointer;
+    background: var(--orange); color: #fff;
+    font-family: 'Archivo Black', sans-serif; font-size: 1.1rem; letter-spacing: .02em;
+    text-transform: uppercase; padding: 1.15rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .scan-form button:hover { background: var(--ink); }
+
+  /* Report */
+  .report { padding: 4rem 0 6rem; }
+  .report .lead {
+    display: flex; justify-content: space-between; align-items: end;
+    border-bottom: 3px solid var(--ink); padding-bottom: 1rem; margin-bottom: 2rem;
+  }
+  .report .lead .lbl { font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+  .report .lead .addr { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; margin-top: .35rem; }
+  .report .lead .right { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--ink-2); }
+
+  .report-grid {
+    display: grid; grid-template-columns: 360px 1fr; gap: 1.5rem;
+  }
+  .scorecard {
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    box-shadow: 8px 8px 0 var(--shadow);
+    padding: 2rem 1.75rem;
+  }
+  .scorecard .lbl { font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
+  .scorecard .val {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: 8rem; line-height: .9; margin: .25rem 0;
+    color: var(--orange);
+  }
+  .scorecard .of { font-size: 1.5rem; color: var(--ink-2); }
+  .scorecard .verdict {
+    display: inline-block; background: var(--yellow); color: var(--ink);
+    padding: .35rem .65rem; font-weight: 700; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace; font-size: .78rem; letter-spacing: .12em;
+    margin-top: .5rem;
+  }
+  .scorecard p { margin-top: 1rem; line-height: 1.55; color: var(--ink-2); }
+
+  .findings { display: grid; gap: 1.5rem; }
+  .findings .ftop { display: flex; justify-content: space-between; align-items: baseline; }
+  .findings .ftop .lbl { font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
+  .findings .ftop .count { font-family: 'JetBrains Mono', monospace; font-size: .85rem; }
+
+  .finding {
+    background: var(--paper);
+    border: 3px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--shadow);
+    padding: 1.5rem 1.5rem;
+  }
+  .finding .head {
+    display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem;
+    border-bottom: 2px solid var(--ink); padding-bottom: 1rem;
+  }
+  .finding .sev {
+    background: var(--yellow); padding: .25rem .55rem;
+    font-family: 'JetBrains Mono', monospace; font-weight: 700;
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    border: 2px solid var(--ink);
+  }
+  .finding .typ { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--ink-2); }
+  .finding h3 { font-family: 'Archivo Black', sans-serif; font-size: 1.5rem; line-height: 1.15; margin: 0; text-transform: uppercase; }
+  .finding p { line-height: 1.55; color: var(--ink-2); margin: 1rem 0; max-width: 64ch; }
+  .finding p b { background: var(--yellow); color: var(--ink); padding: 0 .15em; }
+
+  table.evi {
+    width: 100%; border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace; font-size: .82rem;
+    border: 2px solid var(--ink);
+  }
+  table.evi th { background: var(--ink); color: var(--bg); padding: .55rem .75rem; text-align: left; font-weight: 700; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; }
+  table.evi td { padding: .55rem .75rem; border-top: 2px solid var(--ink); }
+  table.evi td.in  { background: var(--green); color: #fff; font-weight: 700; }
+  table.evi td.out { background: var(--orange); color: #fff; font-weight: 700; }
+
+  .citation {
+    margin-top: 1rem; padding: .85rem 1rem;
+    border: 2px dashed var(--ink); background: var(--bg);
+    font-size: .85rem; color: var(--ink-2);
+  }
+  .citation b { background: var(--ink); color: var(--bg); padding: .15rem .45rem; font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .12em; margin-right: .5rem; }
+
+  footer.foot {
+    border-top: 3px solid var(--ink);
+    padding: 1.75rem 0;
+    background: var(--ink); color: var(--bg);
+    font-family: 'JetBrains Mono', monospace; font-size: .78rem; letter-spacing: .04em;
+  }
+  footer.foot .row { display: flex; justify-content: space-between; padding: 0 1.5rem; max-width: 1240px; margin: 0 auto; }
+
+  @media (max-width: 880px) {
+    .scan-grid, .report-grid { grid-template-columns: 1fr; }
+    nav.top ul { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="strip">
+  <div class="row">
+    <span><b>ETH</b>$2,318.41 ↑1.4%</span>
+    <span><b>OFAC SDN</b>last sync 04-28 06:00 utc</span>
+    <span><b>FATF VA RFI</b>2020 sept · 14 indicators tracked</span>
+    <span><b>chainsight</b>v0.1.0</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="top">
+    <div class="brand">
+      <span class="logo">CS</span>
+      <span style="font-weight:700; letter-spacing:-.01em;">ChainSight</span>
+      <span class="by">— by AIRWA</span>
+    </div>
+    <ul>
+      <li><a href="#">Methodology</a></li>
+      <li><a href="#">Typologies</a></li>
+      <li><a href="#">API</a></li>
+      <li><a href="#">Pricing</a></li>
+    </ul>
+    <a class="btn-cta" href="#">Request access →</a>
+  </nav>
+
+  <section class="hero">
+    <h1>
+      AML risk<br/>
+      reports — <span class="pill">defensible</span><br/>
+      <span class="pill green">in 6 seconds</span>.
+    </h1>
+    <p class="sub">Paste an Ethereum address. ChainSight pulls the full transaction history, evaluates <b>five FATF typologies</b>, and produces a citation-backed report your compliance team can defend in audit.</p>
+    <div class="badges">
+      <div class="badge"><b>OFAC</b> sanctions screening</div>
+      <div class="badge"><b>FATF</b> 2020 RFI typologies</div>
+      <div class="badge"><b>231</b> tx · 116 counterparties · &lt;6s</div>
+      <div class="badge"><b>MIT</b> open-source engine</div>
+    </div>
+  </section>
+</div>
+
+<section class="scan">
+  <div class="wrap">
+    <div class="scan-grid">
+      <div>
+        <h2>Run a <span>scan.</span></h2>
+        <p>Five typology detectors, OFAC SDN screening, and deterministic scoring. No black-box ML. Every finding cites its source.</p>
+      </div>
+      <form class="scan-form" onsubmit="event.preventDefault()">
+        <div class="field">
+          <label class="lbl">Chain</label>
+          <select><option>Ethereum mainnet</option><option>Polygon (soon)</option><option>Arbitrum (soon)</option></select>
+        </div>
+        <div class="field">
+          <label class="lbl">Wallet address</label>
+          <input value="0x64954FcfEe8eF00416c40E3ff624dC6DdE7Ca0B4" />
+        </div>
+        <button type="submit"><span>Generate report</span><span>→</span></button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <section class="report">
+    <div class="lead">
+      <div>
+        <div class="lbl">Sample report · #00231</div>
+        <div class="addr">0x64954fcfee8ef00416c40e3ff624dc6dde7ca0b4</div>
+      </div>
+      <div class="right">231 TX · 116 COUNTERPARTIES · 2018-02-27 → 2026-01-24</div>
+    </div>
+
+    <div class="report-grid">
+      <div class="scorecard">
+        <div class="lbl">Risk score</div>
+        <div class="val">15<span class="of">/100</span></div>
+        <span class="verdict">Standard DD</span>
+        <p>Routine customer due diligence checks recommended. No escalation triggers. Activity falls within expected behavioral envelope for a long-lived wallet.</p>
+      </div>
+
+      <div class="findings">
+        <div class="ftop">
+          <span class="lbl">Findings</span>
+          <span class="count">01 medium · 00 high · 00 critical</span>
+        </div>
+
+        <div class="finding">
+          <div class="head">
+            <span class="sev">▲ Medium</span>
+            <span class="typ">layering · pass-through</span>
+          </div>
+          <h3>Layering pattern: 5 rapid pass-through transactions</h3>
+          <p>Inbound ETH was forwarded out within 60 minutes in near-identical amounts (within 5% tolerance). Total value passed through: <b>39.5630 ETH</b>. Classic layering signature in the placement-layering-integration framework.</p>
+          <table class="evi">
+            <thead><tr><th>Dir</th><th>Amount</th><th>Counterparty</th><th>Δt</th></tr></thead>
+            <tbody>
+              <tr><td class="in">IN</td><td>12.0056 ETH</td><td>0x267b…fdc0</td><td>—</td></tr>
+              <tr><td class="out">OUT</td><td>12.0000 ETH</td><td>0xf0b9…a1b5</td><td>+212s</td></tr>
+              <tr><td class="in">IN</td><td>16.7662 ETH</td><td>0x267b…fdc0</td><td>—</td></tr>
+              <tr><td class="out">OUT</td><td>16.7000 ETH</td><td>0x6e2e…7d2a</td><td>+1970s</td></tr>
+              <tr><td class="in">IN</td><td>6.0000 ETH</td><td>0x3f5c…f0be</td><td>—</td></tr>
+              <tr><td class="out">OUT</td><td>6.0000 ETH</td><td>0xeb1e…063e</td><td>+1141s</td></tr>
+            </tbody>
+          </table>
+          <div class="citation"><b>FATF</b> Virtual Assets Red Flag Indicators — September 2020 · §4.2(a)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer class="foot">
+  <div class="row">
+    <span>CHAINSIGHT v0.1.0 · AIRWA FINANCE · MIT</span>
+    <span>EDUCATIONAL · NOT REGULATED ADVICE</span>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ChainSight — Design Direction Previews</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100dvh;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #0a0a0a; color: #f4f4f4;
+    display: grid; place-items: center; padding: 4rem 1.5rem;
+  }
+  .wrap { max-width: 980px; width: 100%; }
+  h1 { font-size: clamp(2rem, 1rem + 3vw, 3.5rem); margin: 0 0 .5rem; letter-spacing: -.02em; }
+  p.sub { color: #a3a3a3; margin: 0 0 3rem; max-width: 60ch; line-height: 1.6; }
+  .grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  a.card {
+    display: block; padding: 2rem 1.75rem; border-radius: 14px;
+    background: #161616; border: 1px solid #262626; color: inherit;
+    text-decoration: none; transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  }
+  a.card:hover { transform: translateY(-3px); border-color: #4d4d4d; background: #1c1c1c; }
+  .num { font-family: ui-monospace, "JetBrains Mono", "Cascadia Code", monospace; color: #737373; font-size: .8rem; letter-spacing: .15em; }
+  .name { font-size: 1.4rem; margin: .5rem 0 .25rem; letter-spacing: -.01em; }
+  .desc { color: #a3a3a3; line-height: 1.5; font-size: .95rem; }
+  .swatch { display: flex; gap: 6px; margin-top: 1.25rem; }
+  .swatch span { width: 22px; height: 22px; border-radius: 4px; border: 1px solid rgba(255,255,255,.06); }
+  footer { margin-top: 3rem; color: #525252; font-size: .85rem; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ChainSight — Design Directions</h1>
+    <p class="sub">Three concrete visual directions for the public ChainSight site. Each mockup uses real content from your scan of <code>0x64954…a0b4</code> so you can compare typography, hierarchy, and tone with the same data.</p>
+
+    <div class="grid">
+      <a class="card" href="01-editorial-fintech.html">
+        <div class="num">01</div>
+        <div class="name">Editorial Fintech</div>
+        <div class="desc">Bloomberg Terminal meets a financial newspaper. Dark, dense, monospace data, serif headlines. Authority signal for compliance teams.</div>
+        <div class="swatch">
+          <span style="background:#0a0a0a"></span><span style="background:#161616"></span>
+          <span style="background:#e7c873"></span><span style="background:#e85a4f"></span>
+          <span style="background:#f4f4f4"></span>
+        </div>
+      </a>
+      <a class="card" href="02-swiss-institutional.html">
+        <div class="num">02</div>
+        <div class="name">Swiss Institutional</div>
+        <div class="desc">Clean grid, restrained palette, large numerals, no decoration. Quiet confidence. Reads like a Big Four audit firm.</div>
+        <div class="swatch">
+          <span style="background:#fafaf7"></span><span style="background:#111111"></span>
+          <span style="background:#1f3aa1"></span><span style="background:#cf3a30"></span>
+          <span style="background:#e6e4dc"></span>
+        </div>
+      </a>
+      <a class="card" href="03-neo-brutalist.html">
+        <div class="num">03</div>
+        <div class="name">Neo-Brutalist Analytic</div>
+        <div class="desc">Hard edges, thick borders, offset shadows, brutal data tables. Bold, opinionated. Stands out from the RegTech beige crowd.</div>
+        <div class="swatch">
+          <span style="background:#f4f1e8"></span><span style="background:#111111"></span>
+          <span style="background:#ff5c1c"></span><span style="background:#22c55e"></span>
+          <span style="background:#000000"></span>
+        </div>
+      </a>
+    </div>
+
+    <footer>Open this folder's <code>index.html</code> in a browser. Each card opens a self-contained mockup — no build step, no dependencies.</footer>
+  </div>
+</body>
+</html>

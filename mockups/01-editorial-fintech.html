@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ChainSight — Editorial Fintech</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-elev: #111111;
+    --bg-elev-2: #161616;
+    --line: #232323;
+    --line-strong: #2e2e2e;
+    --text: #ededeb;
+    --text-dim: #9a9a96;
+    --text-muted: #6b6b67;
+    --gold: #e7c873;
+    --red: #e85a4f;
+    --amber: #f0a859;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .serif { font-family: 'Fraunces', 'Times New Roman', serif; font-feature-settings: "ss01"; }
+
+  /* Top ticker / nav */
+  .ticker {
+    border-bottom: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--text-muted);
+    padding: .55rem 0;
+    overflow: hidden;
+  }
+  .ticker-row { display: flex; gap: 3rem; padding: 0 2rem; white-space: nowrap; }
+  .ticker-row span b { color: var(--gold); font-weight: 500; margin-right: .5rem; }
+
+  nav.top {
+    border-bottom: 1px solid var(--line);
+    padding: 1.25rem 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand { display: flex; align-items: baseline; gap: .65rem; }
+  .brand .logo { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.4rem; letter-spacing: -.02em; }
+  .brand .by { font-family: 'JetBrains Mono', monospace; font-size: .68rem; letter-spacing: .18em; color: var(--text-muted); text-transform: uppercase; }
+  nav.top ul { display: flex; gap: 2rem; list-style: none; padding: 0; margin: 0; font-size: .88rem; color: var(--text-dim); }
+  nav.top a:hover { color: var(--text); }
+  .btn-line {
+    border: 1px solid var(--line-strong); padding: .55rem 1rem; font-size: .82rem; letter-spacing: .04em;
+  }
+
+  /* Masthead / hero */
+  .mast {
+    padding: 5rem 2rem 3rem;
+    border-bottom: 1px solid var(--line);
+    display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 4rem;
+  }
+  .mast .kicker { font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.25rem; }
+  .mast h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.6rem, 1rem + 5.5vw, 6rem);
+    line-height: .98; letter-spacing: -.025em;
+    margin: 0 0 1.5rem;
+    font-weight: 500;
+  }
+  .mast h1 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .mast .lede { font-size: 1.1rem; line-height: 1.55; color: var(--text-dim); max-width: 56ch; }
+  .mast .lede b { color: var(--text); font-weight: 600; }
+
+  .mast aside {
+    border-left: 1px solid var(--line);
+    padding-left: 2rem;
+    align-self: start;
+  }
+  .mast aside .meta-label { font-family: 'JetBrains Mono', monospace; font-size: .68rem; letter-spacing: .2em; text-transform: uppercase; color: var(--text-muted); }
+  .mast aside h3 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.4rem; margin: .5rem 0 1rem; line-height: 1.2; }
+  .mast aside p { color: var(--text-dim); line-height: 1.55; font-size: .95rem; margin: 0 0 1.5rem; }
+
+  /* Scan input */
+  .scan {
+    padding: 3rem 2rem 4rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .scan-inner { max-width: 1100px; }
+  .scan h2 {
+    font-family: 'Fraunces', serif; font-size: 2rem; font-weight: 500; letter-spacing: -.02em;
+    margin: 0 0 1.5rem;
+  }
+  .scan-form {
+    display: grid; grid-template-columns: 120px 1fr 180px; gap: 0;
+    border: 1px solid var(--line-strong);
+    background: var(--bg-elev);
+  }
+  .scan-form .chain {
+    border-right: 1px solid var(--line);
+    padding: 1.25rem 1rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .82rem; color: var(--text-dim);
+    display: flex; align-items: center; gap: .5rem;
+  }
+  .scan-form input {
+    background: transparent; border: 0; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 1rem;
+    padding: 1.25rem 1.25rem; outline: none;
+  }
+  .scan-form button {
+    background: var(--gold); color: #1a1300; border: 0;
+    font-family: 'Inter', sans-serif; font-weight: 600;
+    letter-spacing: .04em; cursor: pointer;
+    text-transform: uppercase; font-size: .85rem;
+  }
+  .scan-form button:hover { background: #f3d585; }
+  .scan .hints { display: flex; gap: 2rem; margin-top: 1rem; font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--text-muted); letter-spacing: .04em; }
+
+  /* Report sample */
+  .report {
+    padding: 4rem 2rem 6rem;
+  }
+  .report-head {
+    display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end;
+    margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--line);
+  }
+  .report-head .label { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--text-muted); }
+  .report-head .addr { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; margin-top: .35rem; }
+  .report-head .meta { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--text-dim); display: flex; gap: 1.75rem; }
+
+  .grid-3 {
+    display: grid; grid-template-columns: 320px 1fr; gap: 3rem;
+  }
+  .scorebox {
+    border: 1px solid var(--line-strong);
+    padding: 2rem;
+    background: var(--bg-elev);
+    position: relative;
+  }
+  .scorebox .label { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--text-muted); }
+  .scorebox .score { font-family: 'Fraunces', serif; font-size: 7rem; font-weight: 500; line-height: .9; letter-spacing: -.04em; color: var(--amber); margin: .75rem 0 .25rem; }
+  .scorebox .of { color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: .8rem; }
+  .scorebox .verdict { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); font-family: 'Fraunces', serif; font-size: 1.05rem; line-height: 1.4; }
+  .scorebox .verdict b { color: var(--amber); font-weight: 700; letter-spacing: .04em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; font-size: .78rem; display: block; margin-bottom: .35rem; }
+
+  .findings .label { font-family: 'JetBrains Mono', monospace; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; }
+  .finding {
+    border-top: 1px solid var(--line);
+    padding: 1.5rem 0 1.5rem;
+    display: grid; grid-template-columns: 100px 1fr; gap: 2rem;
+  }
+  .finding:last-child { border-bottom: 1px solid var(--line); }
+  .finding .sev {
+    font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--amber);
+  }
+  .finding .sev.high { color: var(--red); }
+  .finding .sev .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: currentColor; margin-right: .5rem; vertical-align: middle; }
+  .finding h3 {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.45rem; line-height: 1.25; margin: 0 0 .75rem;
+    letter-spacing: -.01em;
+  }
+  .finding p { color: var(--text-dim); line-height: 1.6; margin: 0 0 1rem; max-width: 64ch; }
+  .evidence { font-family: 'JetBrains Mono', monospace; font-size: .78rem; line-height: 1.7; color: var(--text-muted); }
+  .evidence span.in  { color: #79b791; }
+  .evidence span.out { color: var(--red); }
+  .citation {
+    margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--line);
+    font-size: .85rem; color: var(--text-muted); font-style: italic;
+  }
+  .citation b { color: var(--gold); font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; margin-right: .75rem; }
+
+  /* Footer */
+  footer.foot { border-top: 1px solid var(--line); padding: 2rem; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: .75rem; letter-spacing: .04em; display: flex; justify-content: space-between; }
+
+  @media (max-width: 880px) {
+    .mast, .grid-3 { grid-template-columns: 1fr; }
+    .mast aside { border-left: 0; border-top: 1px solid var(--line); padding: 2rem 0 0; }
+    .scan-form { grid-template-columns: 1fr; }
+    .scan-form .chain, .scan-form input { border-right: 0; border-bottom: 1px solid var(--line); }
+    nav.top ul { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ticker">
+  <div class="ticker-row">
+    <span><b>ETH</b>$2,318.41 +1.4%</span>
+    <span><b>OFAC SDN</b>last sync 04-28 06:00 UTC</span>
+    <span><b>FATF VA RFI</b>2020 Sep — 14 indicators tracked</span>
+    <span><b>CHAINSIGHT</b>v0.1.0</span>
+  </div>
+</div>
+
+<nav class="top">
+  <div class="brand">
+    <span class="logo">ChainSight</span>
+    <span class="by">by AIRWA</span>
+  </div>
+  <ul>
+    <li><a href="#">Methodology</a></li>
+    <li><a href="#">Typologies</a></li>
+    <li><a href="#">API</a></li>
+    <li><a href="#">Sample report</a></li>
+  </ul>
+  <a class="btn-line mono" href="#">Request access</a>
+</nav>
+
+<section class="mast">
+  <div>
+    <div class="kicker">AML risk intelligence · onchain</div>
+    <h1>Wallet-level AML reports, <em>auditable</em> in seconds.</h1>
+    <p class="lede"><b>ChainSight</b> screens any Ethereum address against OFAC SDN, mixer exposure, scam clusters, and five FATF money-laundering typologies — and produces a deterministic, citation-backed report your compliance team can defend.</p>
+  </div>
+  <aside>
+    <div class="meta-label">Editorial · 04.28.26</div>
+    <h3>Why deterministic reporting matters</h3>
+    <p>Black-box risk scores fail audit. Every ChainSight finding cites the underlying FATF or OFAC source and links to the exact transactions that triggered it.</p>
+    <a class="mono" style="font-size:.78rem; letter-spacing:.14em; color:var(--gold); text-transform:uppercase;" href="#">Read the methodology →</a>
+  </aside>
+</section>
+
+<section class="scan">
+  <div class="scan-inner">
+    <h2>Run a scan.</h2>
+    <form class="scan-form" onsubmit="event.preventDefault()">
+      <div class="chain">⬢ ETHEREUM</div>
+      <input value="0x64954FcfEe8eF00416c40E3ff624dC6DdE7Ca0B4" />
+      <button type="submit">Scan wallet →</button>
+    </form>
+    <div class="hints">
+      <span>5 typologies · OFAC + FATF</span>
+      <span>~6s avg · cached 24h</span>
+      <span>JSON · Markdown · PDF</span>
+    </div>
+  </div>
+</section>
+
+<section class="report">
+  <div class="report-head">
+    <div>
+      <div class="label">Sample report · #00231</div>
+      <div class="addr">0x64954fcfee8ef00416c40e3ff624dc6dde7ca0b4</div>
+    </div>
+    <div class="meta">
+      <span>231 TX</span><span>116 COUNTERPARTIES</span><span>FIRST 2018-02-27</span><span>LAST 2026-01-24</span>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="scorebox">
+      <div class="label">Risk score</div>
+      <div class="score">15<span class="of"> / 100</span></div>
+      <div class="verdict">
+        <b>Verdict</b>
+        Standard due diligence. Routine CDD checks recommended; no escalation triggers.
+      </div>
+    </div>
+
+    <div class="findings">
+      <div class="label">Findings · 1 medium</div>
+
+      <div class="finding">
+        <div class="sev"><span class="dot"></span>Medium</div>
+        <div>
+          <h3>Layering pattern: 5 rapid pass-through transactions.</h3>
+          <p>Inbound ETH was forwarded out within 60 minutes in near-identical amounts (within 5% tolerance). Total value passed through: <b>39.5630 ETH</b>. Classic layering pattern in the placement-layering-integration framework.</p>
+          <div class="evidence">
+            <span class="in">IN</span>  12.0056 ETH ← 0x267b…fdc0 · 2018-03-07 11:03<br/>
+            <span class="out">OUT</span> 12.0000 ETH → 0xf0b9…a1b5 · +212s<br/>
+            <span class="in">IN</span>  16.7662 ETH ← 0x267b…fdc0 · 2018-03-31 17:40<br/>
+            <span class="out">OUT</span> 16.7000 ETH → 0x6e2e…7d2a · +1970s<br/>
+            <span class="in">IN</span>  &nbsp;6.0000 ETH ← 0x3f5c…f0be · 2018-06-05 13:03<br/>
+            <span class="out">OUT</span> &nbsp;6.0000 ETH → 0xeb1e…063e · +1141s
+          </div>
+          <div class="citation"><b>FATF</b> Virtual Assets Red Flag Indicators · Sept 2020 · §4.2(a)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <span>CHAINSIGHT v0.1.0 · AIRWA FINANCE</span>
+  <span>EDUCATIONAL · NOT REGULATED ADVICE</span>
+</footer>
+
+</body>
+</html>
