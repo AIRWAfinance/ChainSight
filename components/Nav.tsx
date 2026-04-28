@@ -8,7 +8,7 @@ export function Nav() {
       <ul className="nav-links">
         <li><Link href="/#methodology">Methodology</Link></li>
         <li><Link href="/#typologies">Typologies</Link></li>
-        <li><Link href="/#sample-report">Sample report</Link></li>
+        <li><Link href="/dashboard">Dashboard</Link></li>
         <li>
           <a href="https://github.com/AIRWAfinance/ChainSight" target="_blank" rel="noreferrer">
             GitHub

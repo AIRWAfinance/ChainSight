@@ -87,7 +87,18 @@ export function Findings({ flags }: FindingsProps) {
                     {flag.evidence.slice(0, 8).map((e, j) => (
                       <tr key={j}>
                         <td>{shortHash(e.txHash)}</td>
-                        <td>{shortAddr(e.counterpartyAddress)}</td>
+                        <td>
+                          {e.counterpartyLabel ? (
+                            <>
+                              <span className={`entity-tag entity-${e.counterpartyCategory ?? 'unknown'}`}>
+                                {e.counterpartyLabel}
+                              </span>
+                              <span className="entity-addr">{shortAddr(e.counterpartyAddress)}</span>
+                            </>
+                          ) : (
+                            shortAddr(e.counterpartyAddress)
+                          )}
+                        </td>
                         <td className="amt">{formatEth(e.amountWei)}</td>
                         <td>{e.timestamp ? new Date(e.timestamp).toISOString().slice(0, 10) : (e.note ?? '—')}</td>
                       </tr>

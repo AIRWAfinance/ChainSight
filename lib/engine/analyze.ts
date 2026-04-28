@@ -10,6 +10,7 @@ import {
   computeScoreBreakdown,
   recommendation,
 } from './scorer.js';
+import { labelFor } from '../data/labels.js';
 
 const VERSION = '0.3.0';
 
@@ -56,7 +57,19 @@ export function analyze(
   ];
 
   const ctx = buildContext(address, transactions);
-  const flags = runAllTypologies(ctx);
+  const rawFlags = runAllTypologies(ctx);
+  const flags = rawFlags.map((flag) => ({
+    ...flag,
+    evidence: flag.evidence.map((e) => {
+      const label = labelFor(e.counterpartyAddress);
+      if (!label) return e;
+      return {
+        ...e,
+        counterpartyLabel: label.label,
+        counterpartyCategory: label.category,
+      };
+    }),
+  }));
   const score = computeRiskScore(flags);
   const scoreBreakdown = computeScoreBreakdown(flags);
 

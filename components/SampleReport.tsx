@@ -19,6 +19,8 @@ const SAMPLE_REPORT: RiskReport = {
         {
           txHash: '0x880e7e8f61bf5246c0daf48d39cb606242656ce30b03f79a6c89a2e08a475953',
           counterpartyAddress: '0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0',
+          counterpartyLabel: 'Kraken 4',
+          counterpartyCategory: 'cex',
           amountWei: '12005600000000000000',
           timestamp: '2018-03-07T11:03:28.000Z',
           note: 'IN',
@@ -33,13 +35,17 @@ const SAMPLE_REPORT: RiskReport = {
         {
           txHash: '0xad6b4102228ba0bb5e278be90a3ae649c803b394773824e9e98f9cebaa3042bc',
           counterpartyAddress: '0x267be1c1d684f78cb4f6a176c4911b741e4ffdc0',
+          counterpartyLabel: 'Kraken 4',
+          counterpartyCategory: 'cex',
           amountWei: '16766170000000000000',
           timestamp: '2018-03-31T17:40:11.000Z',
           note: 'IN',
         },
         {
           txHash: '0xd229032620a4a254b6a1987d9a56c15ea8798480af99ae16a2253bbc5ffbb7a4',
-          counterpartyAddress: '0x6e2e5b0bad80eac708fefe902a7e6917b95d7d2a',
+          counterpartyAddress: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d',
+          counterpartyLabel: 'Uniswap V2 Router',
+          counterpartyCategory: 'dex',
           amountWei: '16700000000000000000',
           timestamp: '2018-03-31T18:13:01.000Z',
           note: '+1970s',

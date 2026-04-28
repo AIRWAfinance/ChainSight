@@ -34,6 +34,8 @@ export interface Citation {
 export interface Evidence {
   txHash?: string;
   counterpartyAddress?: string;
+  counterpartyLabel?: string;
+  counterpartyCategory?: string;
   blockNumber?: number;
   timestamp?: string;
   amountWei?: string;

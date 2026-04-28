@@ -7,6 +7,7 @@ import {
 } from './ThresholdLadder';
 import { Findings } from './Findings';
 import { ScoreBreakdown } from './ScoreBreakdown';
+import { SaveActions } from './SaveActions';
 
 interface ReportProps {
   report: RiskReport;
@@ -60,6 +61,7 @@ export function Report({ report, variant = 'live' }: ReportProps) {
             </span>
             <p>{recommendationProse(report.recommendation)}</p>
           </div>
+          {variant === 'live' && <SaveActions report={report} />}
         </div>
 
         <Findings flags={report.flags} />
