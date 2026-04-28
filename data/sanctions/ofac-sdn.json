@@ -1,0 +1,32 @@
+{
+  "lastUpdated": "2026-04-28",
+  "note": "Seed list. Run `npm run sync:ofac` to refresh from the live OFAC SDN feed at https://www.treasury.gov/ofac/downloads/sdn.xml",
+  "addresses": [
+    {
+      "address": "0x098B716B8Aaf21512996dC57EB0615e2383E2f96",
+      "list": "OFAC_SDN",
+      "entity": "Lazarus Group (DPRK)",
+      "program": "DPRK3",
+      "addedDate": "2022-04-14",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0731",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-04-14"
+      }
+    },
+    {
+      "address": "0x8589427373D6D84E98730D7795D8f6f8731FDA16",
+      "list": "OFAC_SDN",
+      "entity": "Tornado Cash",
+      "program": "CYBER2",
+      "addedDate": "2022-08-08",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0916",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-08-08"
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "lastUpdated": "2026-04-28",
+  "addresses": [
+    {
+      "address": "0x098B716B8Aaf21512996dC57EB0615e2383E2f96",
+      "category": "ransomware",
+      "label": "Ronin Network exploit (Lazarus Group)",
+      "description": "Address tied to the March 2022 Ronin Bridge hack attributed to Lazarus Group (DPRK). OFAC-sanctioned 2022-04-14.",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0731",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-04-14 — Ronin/Lazarus"
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "lastUpdated": "2026-04-28",
+  "addresses": [
+    {
+      "address": "0x8589427373D6D84E98730D7795D8f6f8731FDA16",
+      "category": "mixer",
+      "label": "Tornado Cash Router",
+      "description": "Tornado Cash router contract — sanctioned by OFAC on 2022-08-08 (SDN designation). Funds passing through this contract obscure transaction trail.",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0916",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-08-08 — Tornado Cash"
+      }
+    },
+    {
+      "address": "0x722122dF12D4e14e13Ac3b6895a86e84145b6967",
+      "category": "mixer",
+      "label": "Tornado Cash Proxy",
+      "description": "Tornado Cash proxy contract. Listed in OFAC SDN designation 2022-08-08.",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0916",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-08-08 — Tornado Cash"
+      }
+    },
+    {
+      "address": "0xDD4c48C0B24039969fC16D1cdF626eaB821d3384",
+      "category": "mixer",
+      "label": "Tornado Cash 0.1 ETH pool",
+      "description": "Tornado Cash 0.1 ETH denomination mixing pool. OFAC-sanctioned.",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0916",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-08-08 — Tornado Cash"
+      }
+    },
+    {
+      "address": "0x910Cbd523D972eb0a6f4cAe4618aD62622b39DbF",
+      "category": "mixer",
+      "label": "Tornado Cash 1 ETH pool",
+      "description": "Tornado Cash 1 ETH denomination mixing pool. OFAC-sanctioned.",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0916",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-08-08 — Tornado Cash"
+      }
+    },
+    {
+      "address": "0xA160cdAB225685dA1d56aa342Ad8841c3b53f291",
+      "category": "mixer",
+      "label": "Tornado Cash 100 ETH pool",
+      "description": "Tornado Cash 100 ETH denomination mixing pool. OFAC-sanctioned.",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0916",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-08-08 — Tornado Cash"
+      }
+    },
+    {
+      "address": "0xD691F27f38B395864Ea86CfC7253969B409c362d",
+      "category": "mixer",
+      "label": "Tornado Cash 10 ETH pool",
+      "description": "Tornado Cash 10 ETH denomination mixing pool. OFAC-sanctioned.",
+      "source": {
+        "source": "U.S. Department of the Treasury, OFAC SDN List",
+        "url": "https://home.treasury.gov/news/press-releases/jy0916",
+        "retrievedAt": "2026-04-28",
+        "reference": "OFAC Action 2022-08-08 — Tornado Cash"
+      }
+    }
+  ]
+}
