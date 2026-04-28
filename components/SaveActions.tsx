@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import type { RiskReport } from '@/lib/engine/types';
 
@@ -8,6 +9,7 @@ interface SaveActionsProps {
 }
 
 export function SaveActions({ report }: SaveActionsProps) {
+  const router = useRouter();
   const [savedId, setSavedId] = useState<string | null>(null);
   const [watching, setWatching] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -25,6 +27,10 @@ export function SaveActions({ report }: SaveActionsProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ report }),
       });
+      if (res.status === 401) {
+        router.push('/login?next=/scan');
+        return;
+      }
       const json = await res.json();
       if (!res.ok) throw new Error(json.message ?? 'Save failed');
       setSavedId(json.scan.id);
@@ -48,6 +54,10 @@ export function SaveActions({ report }: SaveActionsProps) {
           alertEmail: email || null,
         }),
       });
+      if (res.status === 401) {
+        router.push('/login?next=/scan');
+        return;
+      }
       const json = await res.json();
       if (!res.ok) throw new Error(json.message ?? 'Add to watchlist failed');
       setWatching(true);

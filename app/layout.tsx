@@ -56,6 +56,14 @@ export default function RootLayout({
       className={`${fraunces.variable} ${interTight.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Strip Bitdefender / Grammarly DOM injections before React hydrates. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var b=document.body;if(!b)return;var walk=function(n){if(n.nodeType===1){if(n.removeAttribute){n.removeAttribute('bis_skin_checked');n.removeAttribute('bis_register');n.removeAttribute('data-new-gr-c-s-check-loaded');n.removeAttribute('data-gr-ext-installed');for(var i=0;i<n.attributes.length;i++){var a=n.attributes[i];if(a&&a.name&&a.name.indexOf('__processed_')===0){n.removeAttribute(a.name);i--;}}}}for(var c=n.firstChild;c;c=c.nextSibling)walk(c);};walk(b);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
   );

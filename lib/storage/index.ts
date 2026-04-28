@@ -1,11 +1,19 @@
 import { resolve } from 'node:path';
 import { SqliteStorage } from './sqlite.js';
-import type { ScanStore, WatchlistStore } from './types.js';
+import { PostgresStorage } from './postgres.js';
+import type { StorageBackend } from './types.js';
 
-let instance: SqliteStorage | null = null;
+let instance: StorageBackend | null = null;
 
-function getStorage(): SqliteStorage {
+export function getStorageBackend(): StorageBackend {
   if (instance) return instance;
+
+  const pgUrl = process.env['CHAINSIGHT_DB_URL'];
+  if (pgUrl && /^postgres(ql)?:\/\//.test(pgUrl)) {
+    instance = new PostgresStorage(pgUrl);
+    return instance;
+  }
+
   const dbPath =
     process.env['CHAINSIGHT_STORE_PATH'] ??
     resolve(process.cwd(), 'data/storage/chainsight.db');
@@ -13,12 +21,10 @@ function getStorage(): SqliteStorage {
   return instance;
 }
 
-export function getScanStore(): ScanStore {
-  return getStorage();
-}
-
-export function getWatchlistStore(): WatchlistStore {
-  return getStorage();
-}
-
-export type { SavedScan, SavedScanSummary, WatchlistEntry } from './types.js';
+export type {
+  SavedScan,
+  SavedScanSummary,
+  WatchlistEntry,
+  UserRow,
+  StorageBackend,
+} from './types.js';

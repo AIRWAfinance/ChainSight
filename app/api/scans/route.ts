@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getScanStore } from '@/lib/storage';
+import { getStorageBackend } from '@/lib/storage';
+import { getSession } from '@/lib/auth/session';
 import type { RiskReport } from '@/lib/engine/types';
 
 export const runtime = 'nodejs';
@@ -10,17 +11,25 @@ const Body = z.object({
 });
 
 export async function GET(req: Request) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+  }
   const { searchParams } = new URL(req.url);
   const limit = Math.min(200, Number(searchParams.get('limit') ?? '50'));
-  const scans = getScanStore().listScans(limit);
+  const scans = await getStorageBackend().listScans(session.userId, limit);
   return NextResponse.json({ scans }, { status: 200 });
 }
 
 export async function POST(req: Request) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+  }
+
   let parsed;
   try {
-    const json = await req.json();
-    parsed = Body.parse(json);
+    parsed = Body.parse(await req.json());
   } catch {
     return NextResponse.json(
       { error: 'invalid_request', message: 'Body must be { report: RiskReport }' },
@@ -36,6 +45,6 @@ export async function POST(req: Request) {
     );
   }
 
-  const summary = getScanStore().saveScan(report);
+  const summary = await getStorageBackend().saveScan(session.userId, report);
   return NextResponse.json({ scan: summary }, { status: 201 });
 }

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getWatchlistStore } from '@/lib/storage';
+import { getStorageBackend } from '@/lib/storage';
 import { isChainSlug } from '@/lib/data/chains';
+import { getSession } from '@/lib/auth/session';
 import type { ChainSlug } from '@/lib/engine/types';
 
 export const runtime = 'nodejs';
@@ -15,11 +16,20 @@ const Body = z.object({
 });
 
 export async function GET() {
-  const list = getWatchlistStore().list();
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+  }
+  const list = await getStorageBackend().listWatch(session.userId);
   return NextResponse.json({ watchlist: list }, { status: 200 });
 }
 
 export async function POST(req: Request) {
+  const session = await getSession();
+  if (!session) {
+    return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
+  }
+
   let parsed;
   try {
     parsed = Body.parse(await req.json());
@@ -38,7 +48,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const entry = getWatchlistStore().add({
+  const entry = await getStorageBackend().addWatch(session.userId, {
     address: parsed.address,
     chain: parsed.chain as ChainSlug,
     alertEmail: parsed.alertEmail ?? null,

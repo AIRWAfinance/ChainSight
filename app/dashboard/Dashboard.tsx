@@ -218,6 +218,14 @@ export function Dashboard() {
                 <td>{s.recommendation}</td>
                 <td>{s.flagsCount}</td>
                 <td className="row-actions">
+                  <a
+                    href={`/api/scans/${s.id}/pdf`}
+                    className="btn-gold"
+                    style={{ fontSize: '0.72rem', padding: '0.4rem 0.7rem' }}
+                    download
+                  >
+                    PDF
+                  </a>
                   <Link
                     href={`/scan?address=${s.address}&chain=${s.chain}`}
                     className="btn-line"

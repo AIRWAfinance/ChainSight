@@ -1,6 +1,4 @@
-import Database from 'better-sqlite3';
-import { mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
+import pg from 'pg';
 import { randomUUID } from 'node:crypto';
 import type { ChainSlug, RiskReport } from '../engine/types.js';
 import type {
@@ -11,6 +9,8 @@ import type {
   WatchlistEntry,
 } from './types.js';
 
+const { Pool } = pg;
+
 interface UserDbRow {
   id: string;
   email: string;
@@ -18,7 +18,7 @@ interface UserDbRow {
   created_at: string;
 }
 
-interface ScanRow {
+interface ScanDbRow {
   id: string;
   user_id: string;
   address: string;
@@ -30,7 +30,7 @@ interface ScanRow {
   report_json: string;
 }
 
-interface WatchRow {
+interface WatchDbRow {
   id: string;
   user_id: string;
   address: string;
@@ -42,20 +42,17 @@ interface WatchRow {
   status: string;
 }
 
-export class SqliteStorage implements StorageBackend {
-  private db: Database.Database;
+export class PostgresStorage implements StorageBackend {
+  private pool: pg.Pool;
+  private initPromise: Promise<void>;
 
-  constructor(dbPath: string) {
-    mkdirSync(dirname(dbPath), { recursive: true });
-    this.db = new Database(dbPath);
-    this.db.pragma('journal_mode = WAL');
-    this.db.pragma('foreign_keys = ON');
-    this.init();
+  constructor(connectionString: string) {
+    this.pool = new Pool({ connectionString, max: 5 });
+    this.initPromise = this.runMigrations();
   }
 
-  private init(): void {
-    this.migrateLegacyTablesIfNeeded();
-    this.db.exec(`
+  private async runMigrations(): Promise<void> {
+    await this.pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
@@ -65,21 +62,20 @@ export class SqliteStorage implements StorageBackend {
 
       CREATE TABLE IF NOT EXISTS scans (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         address TEXT NOT NULL,
         chain TEXT NOT NULL,
         risk_score INTEGER NOT NULL,
         recommendation TEXT NOT NULL,
         scanned_at TEXT NOT NULL,
         flags_count INTEGER NOT NULL,
-        report_json TEXT NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        report_json TEXT NOT NULL
       );
-      CREATE INDEX IF NOT EXISTS idx_scans_user_scanned ON scans(user_id, scanned_at);
+      CREATE INDEX IF NOT EXISTS idx_scans_user_scanned ON scans(user_id, scanned_at DESC);
 
       CREATE TABLE IF NOT EXISTS watchlist (
         id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         address TEXT NOT NULL,
         chain TEXT NOT NULL,
         alert_email TEXT,
@@ -87,40 +83,37 @@ export class SqliteStorage implements StorageBackend {
         last_checked_at TEXT,
         last_seen_score INTEGER,
         status TEXT NOT NULL DEFAULT 'active',
-        UNIQUE(user_id, address, chain),
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        UNIQUE (user_id, address, chain)
       );
       CREATE INDEX IF NOT EXISTS idx_watchlist_user ON watchlist(user_id);
     `);
   }
 
-  private migrateLegacyTablesIfNeeded(): void {
-    const cols = this.db
-      .prepare(`PRAGMA table_info(scans)`)
-      .all() as Array<{ name: string }>;
-    if (cols.length > 0 && !cols.some((c) => c.name === 'user_id')) {
-      this.db.exec('DROP TABLE IF EXISTS scans');
-      this.db.exec('DROP TABLE IF EXISTS watchlist');
-    }
+  private async q<T extends pg.QueryResultRow>(
+    sql: string,
+    params: unknown[] = [],
+  ): Promise<pg.QueryResult<T>> {
+    await this.initPromise;
+    return this.pool.query<T>(sql, params);
   }
 
   async createUser(email: string, passwordHash: string): Promise<UserRow> {
     const id = randomUUID();
     const createdAt = new Date().toISOString();
-    this.db
-      .prepare(
-        `INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)`,
-      )
-      .run(id, email, passwordHash, createdAt);
+    await this.q(
+      `INSERT INTO users (id, email, password_hash, created_at) VALUES ($1, $2, $3, $4)`,
+      [id, email, passwordHash, createdAt],
+    );
     return { id, email, createdAt };
   }
 
   async findUserByEmail(
     email: string,
   ): Promise<{ user: UserRow; passwordHash: string } | null> {
-    const row = this.db
-      .prepare('SELECT * FROM users WHERE email = ?')
-      .get(email) as UserDbRow | undefined;
+    const r = await this.q<UserDbRow>('SELECT * FROM users WHERE email = $1', [
+      email,
+    ]);
+    const row = r.rows[0];
     if (!row) return null;
     return {
       user: { id: row.id, email: row.email, createdAt: row.created_at },
@@ -129,22 +122,21 @@ export class SqliteStorage implements StorageBackend {
   }
 
   async findUserById(id: string): Promise<UserRow | null> {
-    const row = this.db
-      .prepare('SELECT id, email, created_at FROM users WHERE id = ?')
-      .get(id) as Pick<UserDbRow, 'id' | 'email' | 'created_at'> | undefined;
+    const r = await this.q<UserDbRow>(
+      'SELECT id, email, created_at, password_hash FROM users WHERE id = $1',
+      [id],
+    );
+    const row = r.rows[0];
     if (!row) return null;
     return { id: row.id, email: row.email, createdAt: row.created_at };
   }
 
   async saveScan(userId: string, report: RiskReport): Promise<SavedScanSummary> {
     const id = randomUUID();
-    this.db
-      .prepare(
-        `INSERT INTO scans
-         (id, user_id, address, chain, risk_score, recommendation, scanned_at, flags_count, report_json)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      )
-      .run(
+    await this.q(
+      `INSERT INTO scans (id, user_id, address, chain, risk_score, recommendation, scanned_at, flags_count, report_json)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+      [
         id,
         userId,
         report.address,
@@ -154,8 +146,8 @@ export class SqliteStorage implements StorageBackend {
         report.scannedAt,
         report.flags.length,
         JSON.stringify(report),
-      );
-
+      ],
+    );
     return {
       id,
       userId,
@@ -169,9 +161,11 @@ export class SqliteStorage implements StorageBackend {
   }
 
   async getScan(userId: string, id: string): Promise<SavedScan | null> {
-    const row = this.db
-      .prepare('SELECT * FROM scans WHERE id = ? AND user_id = ?')
-      .get(id, userId) as ScanRow | undefined;
+    const r = await this.q<ScanDbRow>(
+      'SELECT * FROM scans WHERE id = $1 AND user_id = $2',
+      [id, userId],
+    );
+    const row = r.rows[0];
     if (!row) return null;
     return {
       id: row.id,
@@ -190,17 +184,12 @@ export class SqliteStorage implements StorageBackend {
     userId: string,
     limit: number = 50,
   ): Promise<SavedScanSummary[]> {
-    const rows = this.db
-      .prepare(
-        `SELECT id, user_id, address, chain, risk_score, recommendation, scanned_at, flags_count
-         FROM scans
-         WHERE user_id = ?
-         ORDER BY scanned_at DESC
-         LIMIT ?`,
-      )
-      .all(userId, limit) as Array<Omit<ScanRow, 'report_json'>>;
-
-    return rows.map((row) => ({
+    const r = await this.q<Omit<ScanDbRow, 'report_json'>>(
+      `SELECT id, user_id, address, chain, risk_score, recommendation, scanned_at, flags_count
+       FROM scans WHERE user_id = $1 ORDER BY scanned_at DESC LIMIT $2`,
+      [userId, limit],
+    );
+    return r.rows.map((row) => ({
       id: row.id,
       userId: row.user_id,
       address: row.address,
@@ -213,10 +202,11 @@ export class SqliteStorage implements StorageBackend {
   }
 
   async deleteScan(userId: string, id: string): Promise<boolean> {
-    const info = this.db
-      .prepare('DELETE FROM scans WHERE id = ? AND user_id = ?')
-      .run(id, userId);
-    return info.changes > 0;
+    const r = await this.q('DELETE FROM scans WHERE id = $1 AND user_id = $2', [
+      id,
+      userId,
+    ]);
+    return (r.rowCount ?? 0) > 0;
   }
 
   async addWatch(
@@ -226,35 +216,30 @@ export class SqliteStorage implements StorageBackend {
     const id = randomUUID();
     const addedAt = new Date().toISOString();
     try {
-      this.db
-        .prepare(
-          `INSERT INTO watchlist
-           (id, user_id, address, chain, alert_email, added_at, status)
-           VALUES (?, ?, ?, ?, ?, ?, 'active')`,
-        )
-        .run(
+      await this.q(
+        `INSERT INTO watchlist (id, user_id, address, chain, alert_email, added_at, status)
+         VALUES ($1,$2,$3,$4,$5,$6,'active')`,
+        [
           id,
           userId,
           entry.address.toLowerCase(),
           entry.chain,
           entry.alertEmail ?? null,
           addedAt,
-        );
+        ],
+      );
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
-      if (/UNIQUE constraint/i.test(msg)) {
-        const existing = this.db
-          .prepare(
-            'SELECT * FROM watchlist WHERE user_id = ? AND address = ? AND chain = ?',
-          )
-          .get(userId, entry.address.toLowerCase(), entry.chain) as
-          | WatchRow
-          | undefined;
-        if (existing) return rowToWatch(existing);
+      if (/duplicate key|unique constraint/i.test(msg)) {
+        const r = await this.q<WatchDbRow>(
+          'SELECT * FROM watchlist WHERE user_id = $1 AND address = $2 AND chain = $3',
+          [userId, entry.address.toLowerCase(), entry.chain],
+        );
+        const row = r.rows[0];
+        if (row) return rowToWatch(row);
       }
       throw err;
     }
-
     return {
       id,
       userId,
@@ -269,24 +254,27 @@ export class SqliteStorage implements StorageBackend {
   }
 
   async removeWatch(userId: string, id: string): Promise<boolean> {
-    const info = this.db
-      .prepare('DELETE FROM watchlist WHERE id = ? AND user_id = ?')
-      .run(id, userId);
-    return info.changes > 0;
+    const r = await this.q('DELETE FROM watchlist WHERE id = $1 AND user_id = $2', [
+      id,
+      userId,
+    ]);
+    return (r.rowCount ?? 0) > 0;
   }
 
   async listWatch(userId: string): Promise<WatchlistEntry[]> {
-    const rows = this.db
-      .prepare('SELECT * FROM watchlist WHERE user_id = ? ORDER BY added_at DESC')
-      .all(userId) as WatchRow[];
-    return rows.map(rowToWatch);
+    const r = await this.q<WatchDbRow>(
+      'SELECT * FROM watchlist WHERE user_id = $1 ORDER BY added_at DESC',
+      [userId],
+    );
+    return r.rows.map(rowToWatch);
   }
 
   async getWatch(userId: string, id: string): Promise<WatchlistEntry | null> {
-    const row = this.db
-      .prepare('SELECT * FROM watchlist WHERE id = ? AND user_id = ?')
-      .get(id, userId) as WatchRow | undefined;
-    return row ? rowToWatch(row) : null;
+    const r = await this.q<WatchDbRow>(
+      'SELECT * FROM watchlist WHERE id = $1 AND user_id = $2',
+      [id, userId],
+    );
+    return r.rows[0] ? rowToWatch(r.rows[0]) : null;
   }
 
   async recordWatchCheck(
@@ -294,33 +282,28 @@ export class SqliteStorage implements StorageBackend {
     score: number,
   ): Promise<WatchlistEntry | null> {
     const now = new Date().toISOString();
-    const info = this.db
-      .prepare(
-        `UPDATE watchlist
-         SET last_checked_at = ?, last_seen_score = ?
-         WHERE id = ?`,
-      )
-      .run(now, score, id);
-    if (info.changes === 0) return null;
-    const row = this.db
-      .prepare('SELECT * FROM watchlist WHERE id = ?')
-      .get(id) as WatchRow | undefined;
-    return row ? rowToWatch(row) : null;
+    const r = await this.q(
+      `UPDATE watchlist SET last_checked_at = $1, last_seen_score = $2 WHERE id = $3`,
+      [now, score, id],
+    );
+    if ((r.rowCount ?? 0) === 0) return null;
+    const r2 = await this.q<WatchDbRow>('SELECT * FROM watchlist WHERE id = $1', [id]);
+    return r2.rows[0] ? rowToWatch(r2.rows[0]) : null;
   }
 
   async listAllActiveWatch(): Promise<WatchlistEntry[]> {
-    const rows = this.db
-      .prepare(`SELECT * FROM watchlist WHERE status = 'active'`)
-      .all() as WatchRow[];
-    return rows.map(rowToWatch);
+    const r = await this.q<WatchDbRow>(
+      `SELECT * FROM watchlist WHERE status = 'active'`,
+    );
+    return r.rows.map(rowToWatch);
   }
 
-  close(): void {
-    this.db.close();
+  async close(): Promise<void> {
+    await this.pool.end();
   }
 }
 
-function rowToWatch(row: WatchRow): WatchlistEntry {
+function rowToWatch(row: WatchDbRow): WatchlistEntry {
   return {
     id: row.id,
     userId: row.user_id,

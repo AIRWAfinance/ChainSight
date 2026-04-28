@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Brand } from './Brand';
+import { NavAuth } from './NavAuth';
 
 export function Nav() {
   return (
@@ -15,12 +16,7 @@ export function Nav() {
           </a>
         </li>
       </ul>
-      <div className="nav-right">
-        <Link href="/scan" className="btn-line">Run a scan</Link>
-        <a href="mailto:cryptoworldinversiones@gmail.com" className="btn-gold">
-          Request access
-        </a>
-      </div>
+      <NavAuth />
     </nav>
   );
 }

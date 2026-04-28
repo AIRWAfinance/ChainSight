@@ -8,7 +8,7 @@ export function Ticker() {
         <span><b>CHAINS</b>ETH · POL · BSC · ARB · BASE · OP</span>
         <span>
           <span className="pulse" />
-          Engine online · v0.4.0
+          Engine online · v0.5.0
         </span>
       </div>
     </div>
