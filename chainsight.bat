@@ -29,7 +29,7 @@ echo.
 echo Scanning %ADDR% ...
 echo.
 
-call npm run scan -- --address %ADDR%
+call npm run scan -- %ADDR%
 
 echo.
 pause
