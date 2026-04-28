@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { computeRiskScore, recommendation } from '../src/engine/scorer.js';
-import type { Flag } from '../src/engine/types.js';
+import { computeRiskScore, recommendation } from '../lib/engine/scorer.js';
+import type { Flag } from '../lib/engine/types.js';
 
 const baseFlag = (overrides: Partial<Flag>): Flag => ({
   typology: 'layering',

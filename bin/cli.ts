@@ -3,10 +3,10 @@ import 'dotenv/config';
 import { Command } from 'commander';
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { EtherscanClient } from './data/etherscan.js';
-import { SqliteCache } from './cache/sqlite.js';
-import { analyze } from './engine/analyze.js';
-import { renderMarkdownReport } from './narrative/template-report.js';
+import { EtherscanClient } from '../lib/data/etherscan.js';
+import { SqliteCache } from '../lib/cache/sqlite.js';
+import { analyze } from '../lib/engine/analyze.js';
+import { renderMarkdownReport } from '../lib/narrative/template-report.js';
 
 const ENV = process.env;
 
@@ -15,7 +15,7 @@ const program = new Command();
 program
   .name('chainsight')
   .description('AML risk scoring engine for Ethereum wallet addresses')
-  .version('0.1.0');
+  .version('0.2.0');
 
 program
   .command('scan')

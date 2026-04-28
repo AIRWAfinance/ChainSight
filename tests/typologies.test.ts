@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { detectMixerExposure } from '../src/typologies/mixer-exposure.js';
-import { detectLayering } from '../src/typologies/layering.js';
-import { detectPeelChain } from '../src/typologies/peel-chain.js';
-import { buildContext } from '../src/engine/analyze.js';
+import { detectMixerExposure } from '../lib/typologies/mixer-exposure.js';
+import { detectLayering } from '../lib/typologies/layering.js';
+import { detectPeelChain } from '../lib/typologies/peel-chain.js';
+import { buildContext } from '../lib/engine/analyze.js';
 import {
   makeTx,
   resetCounters,

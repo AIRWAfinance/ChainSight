@@ -1,4 +1,4 @@
-import type { NormalizedTransaction } from '../src/engine/types.js';
+import type { NormalizedTransaction } from '../lib/engine/types.js';
 
 export const SUBJECT = '0x1111111111111111111111111111111111111111';
 export const TORNADO_ROUTER = '0x8589427373D6D84E98730D7795D8f6f8731FDA16';

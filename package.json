@@ -1,16 +1,19 @@
 {
   "name": "chainsight",
-  "version": "0.1.0",
-  "description": "AML risk scoring engine for cryptocurrency wallets. Analyses Ethereum addresses against AML typologies (sanctions, mixer exposure, scam exposure, layering, peel chains) and produces auditable risk reports.",
+  "version": "0.2.0",
+  "description": "AML risk scoring engine for cryptocurrency wallets. Web app + CLI. Analyses Ethereum addresses against FATF typologies (sanctions, mixer, scam, layering, peel chains) and produces auditable risk reports.",
+  "private": true,
   "type": "module",
-  "main": "dist/cli.js",
   "bin": {
-    "chainsight": "dist/cli.js"
+    "chainsight": "bin/cli.ts"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsx src/cli.ts",
-    "scan": "tsx src/cli.ts scan",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "next lint",
+    "cli": "tsx bin/cli.ts",
+    "scan": "tsx bin/cli.ts scan",
     "sync:ofac": "tsx scripts/sync-ofac.ts",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -37,12 +40,17 @@
     "better-sqlite3": "^11.3.0",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
+    "next": "^16.2.4",
     "p-queue": "^8.0.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.11",
     "@types/node": "^22.7.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vitest/coverage-v8": "^2.1.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0",

@@ -1,6 +1,6 @@
 import PQueue from 'p-queue';
 import type { NormalizedTransaction } from '../engine/types.js';
-import { SqliteCache } from '../cache/sqlite.js';
+import type { Cache } from '../cache/types.js';
 
 const ETHERSCAN_BASE = 'https://api.etherscan.io/v2/api';
 const ETHEREUM_MAINNET_CHAIN_ID = '1';
@@ -26,12 +26,12 @@ interface RawTx {
 export interface EtherscanConfig {
   apiKey: string;
   rateLimitPerSecond: number;
-  cache: SqliteCache;
+  cache: Cache;
 }
 
 export class EtherscanClient {
   private queue: PQueue;
-  private cache: SqliteCache;
+  private cache: Cache;
   private apiKey: string;
 
   constructor(config: EtherscanConfig) {

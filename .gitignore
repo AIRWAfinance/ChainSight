@@ -1,44 +1,40 @@
-# Dependencies
+# dependencies
 node_modules/
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+.pnp/
+.pnp.js
+.yarn/install-state.gz
 
-# Build output
-dist/
-*.tsbuildinfo
-
-# Environment / secrets (see README for required variables)
-*.local
-secrets/
-.env*
-
-# Cache databases
-*.db
-*.db-shm
-*.db-wal
-cache/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# Test coverage
+# testing
 coverage/
 
-# Logs
-*.log
+# next.js
+.next/
+out/
+
+# production
+dist/
+
+# misc
+.DS_Store
+*.pem
+.env*.local
+.env
+
+# debug logs
 npm-debug.log*
 yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-# Generated reports (keep examples in /examples)
+# typescript
+*.tsbuildinfo
+next-env.d.ts.bak
+
+# Cache
+cache/
+*.db
+*.db-journal
+
+# Reports / temp
 reports/
-*.report.json
-*.report.md
+dev.log
