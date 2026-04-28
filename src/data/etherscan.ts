@@ -2,7 +2,8 @@ import PQueue from 'p-queue';
 import type { NormalizedTransaction } from '../engine/types.js';
 import { SqliteCache } from '../cache/sqlite.js';
 
-const ETHERSCAN_BASE = 'https://api.etherscan.io/api';
+const ETHERSCAN_BASE = 'https://api.etherscan.io/v2/api';
+const ETHEREUM_MAINNET_CHAIN_ID = '1';
 
 interface EtherscanResponse<T> {
   status: string;
@@ -50,6 +51,7 @@ export class EtherscanClient {
 
     const result = await this.queue.add(async () => {
       const url = new URL(ETHERSCAN_BASE);
+      url.searchParams.set('chainid', ETHEREUM_MAINNET_CHAIN_ID);
       for (const [k, v] of Object.entries(params)) {
         url.searchParams.set(k, v);
       }
@@ -61,7 +63,9 @@ export class EtherscanClient {
       }
       const json = (await res.json()) as EtherscanResponse<T>;
       if (json.status !== '1' && json.message !== 'No transactions found') {
-        throw new Error(`Etherscan error: ${json.message}`);
+        const detail =
+          typeof json.result === 'string' ? json.result : JSON.stringify(json.result);
+        throw new Error(`Etherscan error: ${json.message} — ${detail}`);
       }
       return (json.status === '1' ? json.result : ([] as unknown as T));
     });
