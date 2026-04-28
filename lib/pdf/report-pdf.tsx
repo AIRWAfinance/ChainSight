@@ -278,9 +278,10 @@ function ReportDocument({ report }: { report: RiskReport }) {
         </Text>
 
         <Text style={styles.footer} fixed>
-          ChainSight v{report.meta.chainsightVersion} · AIRWA Finance · MIT
-          License · Educational, not regulated AML advice. Generated{' '}
-          {new Date().toISOString().slice(0, 16)} UTC.
+          ChainSight v{report.meta.chainsightVersion} · Rules{' '}
+          {report.meta.rulesVersion} · fp:{report.meta.rulesFingerprint} ·
+          AIRWA Finance · MIT License · Decision-support, analyst review
+          required. Generated {new Date().toISOString().slice(0, 16)} UTC.
         </Text>
       </Page>
     </Document>

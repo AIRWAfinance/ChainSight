@@ -1,13 +1,19 @@
-import type { AddressContext, Flag, NormalizedTransaction } from '../engine/types.js';
+import type { AddressContext, Flag, NormalizedTransaction, Severity } from '../engine/types.js';
 
 const LAYERING_WINDOW_SECONDS = 60 * 60; // 1 hour
 const LAYERING_VALUE_TOLERANCE = 0.05; // 5% of inflow value
 const MIN_PASS_THROUGH_USD_EQUIV_ETH = 0.01;
+const MIN_MATCHES_FOR_FLAG = 3;
+const CRITICAL_MATCH_THRESHOLD = 25;
+const CRITICAL_NOTIONAL_ETH = 100;
 
 /**
  * Detects layering: rapid pass-through of value, where ETH arrives and is
  * forwarded out within a short time window in similar amounts. A hallmark
  * pattern of money-laundering layering.
+ *
+ * Each outflow can be matched at most once (consumed-set semantics) so the
+ * detector cannot double-count.
  *
  * Regulatory basis:
  *  - FATF Virtual Assets Red Flag Indicators (September 2020)
@@ -17,43 +23,64 @@ const MIN_PASS_THROUGH_USD_EQUIV_ETH = 0.01;
  *    Placement, Layering, Integration.
  */
 export function detectLayering(ctx: AddressContext): Flag[] {
-  const inflows = ctx.transactions.filter(
-    (tx) =>
-      tx.kind === 'normal' &&
-      tx.direction === 'in' &&
-      !tx.isError &&
-      tx.valueEth >= MIN_PASS_THROUGH_USD_EQUIV_ETH,
-  );
-  const outflows = ctx.transactions.filter(
-    (tx) =>
-      tx.kind === 'normal' &&
-      tx.direction === 'out' &&
-      !tx.isError &&
-      tx.valueEth >= MIN_PASS_THROUGH_USD_EQUIV_ETH,
-  );
+  const inflows = ctx.transactions
+    .filter(
+      (tx) =>
+        tx.kind === 'normal' &&
+        tx.direction === 'in' &&
+        !tx.isError &&
+        tx.valueEth >= MIN_PASS_THROUGH_USD_EQUIV_ETH,
+    )
+    .sort((a, b) => a.timestamp - b.timestamp);
+
+  const outflows = ctx.transactions
+    .filter(
+      (tx) =>
+        tx.kind === 'normal' &&
+        tx.direction === 'out' &&
+        !tx.isError &&
+        tx.valueEth >= MIN_PASS_THROUGH_USD_EQUIV_ETH,
+    )
+    .sort((a, b) => a.timestamp - b.timestamp);
 
   const matches: Array<{
     inflow: NormalizedTransaction;
     outflow: NormalizedTransaction;
   }> = [];
+  const consumed = new Set<string>();
 
   for (const inflow of inflows) {
     const matched = outflows.find(
       (out) =>
+        !consumed.has(out.hash) &&
         out.timestamp > inflow.timestamp &&
         out.timestamp - inflow.timestamp <= LAYERING_WINDOW_SECONDS &&
-        Math.abs(out.valueEth - inflow.valueEth) / Math.max(inflow.valueEth, 1e-9) <= LAYERING_VALUE_TOLERANCE,
+        Math.abs(out.valueEth - inflow.valueEth) /
+          Math.max(inflow.valueEth, 1e-9) <=
+          LAYERING_VALUE_TOLERANCE,
     );
-    if (matched) matches.push({ inflow, outflow: matched });
+    if (matched) {
+      matches.push({ inflow, outflow: matched });
+      consumed.add(matched.hash);
+    }
   }
 
-  if (matches.length < 3) return [];
+  if (matches.length < MIN_MATCHES_FOR_FLAG) return [];
 
   const totalPassedThrough = matches.reduce(
     (sum, m) => sum + m.inflow.valueEth,
     0,
   );
-  const severity = matches.length >= 10 ? 'high' : 'medium';
+
+  let severity: Severity = 'medium';
+  if (
+    matches.length >= CRITICAL_MATCH_THRESHOLD ||
+    totalPassedThrough >= CRITICAL_NOTIONAL_ETH
+  ) {
+    severity = 'critical';
+  } else if (matches.length >= 10) {
+    severity = 'high';
+  }
 
   return [
     {

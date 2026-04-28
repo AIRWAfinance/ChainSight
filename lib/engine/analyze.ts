@@ -12,8 +12,9 @@ import {
 } from './scorer.js';
 import { labelFor } from '../data/labels.js';
 import { computeGraph } from './graph.js';
+import { rulesVersionMeta } from './rules-version.js';
 
-const VERSION = '0.3.0';
+const VERSION = '0.7.0';
 
 export function buildContext(
   address: string,
@@ -94,6 +95,7 @@ export function analyze(
       chainsightVersion: VERSION,
       typologiesEvaluated: [...ALL_TYPOLOGIES],
       dataSourcesUsed,
+      ...rulesVersionMeta(),
     },
   };
 }

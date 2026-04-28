@@ -101,6 +101,10 @@ export interface RiskReport {
     chainsightVersion: string;
     typologiesEvaluated: TypologyId[];
     dataSourcesUsed: string[];
+    rulesVersion: string;
+    rulesFingerprint: string;
+    rulesDate: string;
+    rulesRevision: string;
   };
 }
 

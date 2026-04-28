@@ -102,6 +102,10 @@ const SAMPLE_REPORT: RiskReport = {
       'peel_chain',
     ],
     dataSourcesUsed: ['Etherscan', 'OFAC SDN', 'Curated mixer/scam lists'],
+    rulesVersion: '2026-04-28-r1',
+    rulesFingerprint: 'sample0000000000',
+    rulesDate: '2026-04-28',
+    rulesRevision: 'r1',
   },
 };
 

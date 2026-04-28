@@ -99,6 +99,67 @@ describe('detectLayering', () => {
     ]);
     expect(detectLayering(ctx)).toHaveLength(0);
   });
+
+  it('does not double-count: each outflow consumed once', () => {
+    // 5 inflows of 1 ETH staggered by 60s; only ONE matching outflow.
+    // Pre-fix code would have matched the same outflow against all 5 inflows.
+    const txs = [];
+    let t = 1_700_000_000;
+    for (let i = 0; i < 5; i += 1) {
+      txs.push(
+        makeTx({
+          from: RANDOM_PEER_A,
+          to: SUBJECT,
+          direction: 'in',
+          valueEth: 1,
+          timestamp: t,
+        }),
+      );
+      t += 60;
+    }
+    txs.push(
+      makeTx({
+        from: SUBJECT,
+        to: RANDOM_PEER_B,
+        direction: 'out',
+        valueEth: 1,
+        timestamp: t + 30,
+      }),
+    );
+    const ctx = buildContext(SUBJECT, txs);
+    // Only 1 match (single outflow), below threshold of 3 → no flag.
+    expect(detectLayering(ctx)).toHaveLength(0);
+  });
+
+  it('escalates to critical at >=25 matches', () => {
+    const txs = [];
+    let t = 1_700_000_000;
+    for (let i = 0; i < 25; i += 1) {
+      txs.push(
+        makeTx({
+          from: RANDOM_PEER_A,
+          to: SUBJECT,
+          direction: 'in',
+          valueEth: 0.5,
+          timestamp: t,
+        }),
+      );
+      txs.push(
+        makeTx({
+          from: SUBJECT,
+          to: RANDOM_PEER_B,
+          direction: 'out',
+          valueEth: 0.5,
+          timestamp: t + 60,
+        }),
+      );
+      t += 3600;
+    }
+    const ctx = buildContext(SUBJECT, txs);
+    const flags = detectLayering(ctx);
+    expect(flags).toHaveLength(1);
+    expect(flags[0].severity).toBe('critical');
+  });
 });
 
 describe('detectPeelChain', () => {
