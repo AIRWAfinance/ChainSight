@@ -56,24 +56,48 @@ export function CounterpartyGraph({ graph }: CounterpartyGraphProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const fgRef = useRef<unknown>(null);
 
-  // Tune forces so nodes spread out — the default link distance and charge
-  // strength pack labels on top of each other.
+  // Tune forces aggressively so labels never overlap.
+  // - charge: strong repulsion between every pair of nodes
+  // - link: long, soft links so connected nodes don't snap together
+  // - collide: hard collision radius based on node size + label width budget
   useEffect(() => {
+    type ForceLike = {
+      strength?: (v: number) => unknown;
+      distance?: (v: number) => unknown;
+      radius?: (fn: (n: RenderNode) => number) => unknown;
+      iterations?: (n: number) => unknown;
+    };
     type ForceMethod = {
-      d3Force?: (name: string) => { strength?: (v: number) => unknown; distance?: (v: number) => unknown } | undefined;
+      d3Force?: (name: string, fn?: unknown) => ForceLike | undefined;
       d3ReheatSimulation?: () => void;
     };
     const fg = fgRef.current as ForceMethod | null;
     if (!fg || typeof fg.d3Force !== 'function') return;
+
     const charge = fg.d3Force('charge');
-    if (charge && typeof charge.strength === 'function') {
-      charge.strength(-520);
-    }
+    if (charge?.strength) charge.strength(-1200);
+
     const link = fg.d3Force('link');
-    if (link && typeof link.distance === 'function') {
-      link.distance(140);
-      if (typeof link.strength === 'function') link.strength(0.35);
-    }
+    if (link?.distance) link.distance(220);
+    if (link?.strength) link.strength(0.2);
+
+    // Inject a collide force so nodes physically separate by enough to
+    // fit their labels. We approximate label width as label.length * 6px.
+    import('d3-force').then((d3) => {
+      if (typeof d3.forceCollide !== 'function') return;
+      const collide = d3
+        .forceCollide((n: unknown) => {
+          const node = n as RenderNode;
+          const labelLen = (node.label ?? node.id.slice(0, 10)).length;
+          const labelHalfWidth = (labelLen * 6) / 2;
+          return Math.max(node.val / 2 + 24, labelHalfWidth + 12);
+        })
+        .strength(1)
+        .iterations(2);
+      fg.d3Force?.('collide', collide as unknown);
+      fg.d3ReheatSimulation?.();
+    });
+
     fg.d3ReheatSimulation?.();
   }, [graph]);
 
