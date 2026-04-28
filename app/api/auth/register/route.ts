@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { registerUser } from '@/lib/auth/users';
 import { signSession, setSessionCookie } from '@/lib/auth/session';
+import { clientIpFrom, logRegister } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 
@@ -21,10 +22,12 @@ export async function POST(req: Request) {
     );
   }
 
+  const ip = clientIpFrom(req);
   try {
     const user = await registerUser(parsed.email, parsed.password);
     const token = await signSession(user.id, user.email);
     await setSessionCookie(token);
+    await logRegister({ actorIp: ip, userId: user.id, email: user.email });
     return NextResponse.json(
       { user: { id: user.id, email: user.email } },
       { status: 201 },

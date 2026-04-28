@@ -1,4 +1,5 @@
 import type { ChainSlug, RiskReport } from '../engine/types.js';
+import type { AuditEvent, AuditFilter } from '../audit/types.js';
 
 export interface SavedScan {
   id: string;
@@ -65,4 +66,8 @@ export interface StorageBackend {
   getWatch(userId: string, id: string): Promise<WatchlistEntry | null>;
   recordWatchCheck(id: string, score: number): Promise<WatchlistEntry | null>;
   listAllActiveWatch(): Promise<WatchlistEntry[]>;
+
+  // Audit (append-only — no update, no delete)
+  appendAudit(event: Omit<AuditEvent, 'id' | 'ts' | 'payloadHash'>): Promise<AuditEvent>;
+  listAudit(filter?: AuditFilter): Promise<AuditEvent[]>;
 }

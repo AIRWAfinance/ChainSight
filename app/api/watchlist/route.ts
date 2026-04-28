@@ -4,6 +4,7 @@ import { getStorageBackend } from '@/lib/storage';
 import { isChainSlug } from '@/lib/data/chains';
 import { getSession } from '@/lib/auth/session';
 import type { ChainSlug } from '@/lib/engine/types';
+import { clientIpFrom, logWatchAdd } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 
@@ -52,6 +53,14 @@ export async function POST(req: Request) {
     address: parsed.address,
     chain: parsed.chain as ChainSlug,
     alertEmail: parsed.alertEmail ?? null,
+  });
+  await logWatchAdd({
+    actorUserId: session.userId,
+    actorIp: clientIpFrom(req),
+    watchId: entry.id,
+    address: entry.address,
+    chain: entry.chain,
+    alertEmail: entry.alertEmail,
   });
 
   return NextResponse.json({ entry }, { status: 201 });

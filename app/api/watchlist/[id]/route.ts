@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getStorageBackend } from '@/lib/storage';
 import { getSession } from '@/lib/auth/session';
+import { clientIpFrom, logWatchRemove } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getSession();
@@ -20,5 +21,10 @@ export async function DELETE(
       { status: 404 },
     );
   }
+  await logWatchRemove({
+    actorUserId: session.userId,
+    actorIp: clientIpFrom(req),
+    watchId: id,
+  });
   return NextResponse.json({ ok: true }, { status: 200 });
 }

@@ -10,6 +10,20 @@ import type {
   UserRow,
   WatchlistEntry,
 } from './types.js';
+import type { AuditEvent, AuditFilter } from '../audit/types.js';
+import { hashPayload } from '../audit/hash.js';
+
+interface AuditRow {
+  id: string;
+  ts: string;
+  actor_user_id: string | null;
+  actor_ip: string | null;
+  action: string;
+  target_type: string;
+  target_id: string | null;
+  payload_json: string;
+  payload_hash: string;
+}
 
 interface UserDbRow {
   id: string;
@@ -91,6 +105,21 @@ export class SqliteStorage implements StorageBackend {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       );
       CREATE INDEX IF NOT EXISTS idx_watchlist_user ON watchlist(user_id);
+
+      CREATE TABLE IF NOT EXISTS audit_events (
+        id TEXT PRIMARY KEY,
+        ts TEXT NOT NULL,
+        actor_user_id TEXT,
+        actor_ip TEXT,
+        action TEXT NOT NULL,
+        target_type TEXT NOT NULL,
+        target_id TEXT,
+        payload_json TEXT NOT NULL,
+        payload_hash TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit_events(ts);
+      CREATE INDEX IF NOT EXISTS idx_audit_user_ts ON audit_events(actor_user_id, ts);
+      CREATE INDEX IF NOT EXISTS idx_audit_action_ts ON audit_events(action, ts);
     `);
   }
 
@@ -315,9 +344,82 @@ export class SqliteStorage implements StorageBackend {
     return rows.map(rowToWatch);
   }
 
+  async appendAudit(
+    event: Omit<AuditEvent, 'id' | 'ts' | 'payloadHash'>,
+  ): Promise<AuditEvent> {
+    const id = randomUUID();
+    const ts = new Date().toISOString();
+    const payloadHash = hashPayload(event.payload);
+    this.db
+      .prepare(
+        `INSERT INTO audit_events
+         (id, ts, actor_user_id, actor_ip, action, target_type, target_id, payload_json, payload_hash)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      )
+      .run(
+        id,
+        ts,
+        event.actorUserId,
+        event.actorIp,
+        event.action,
+        event.targetType,
+        event.targetId,
+        JSON.stringify(event.payload),
+        payloadHash,
+      );
+    return { id, ts, ...event, payloadHash };
+  }
+
+  async listAudit(filter: AuditFilter = {}): Promise<AuditEvent[]> {
+    const clauses: string[] = [];
+    const params: unknown[] = [];
+    if (filter.userId) {
+      clauses.push('actor_user_id = ?');
+      params.push(filter.userId);
+    }
+    if (filter.action) {
+      clauses.push('action = ?');
+      params.push(filter.action);
+    }
+    if (filter.targetType) {
+      clauses.push('target_type = ?');
+      params.push(filter.targetType);
+    }
+    if (filter.fromTs) {
+      clauses.push('ts >= ?');
+      params.push(filter.fromTs);
+    }
+    if (filter.toTs) {
+      clauses.push('ts <= ?');
+      params.push(filter.toTs);
+    }
+    const where = clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '';
+    const limit = Math.min(10000, Math.max(1, filter.limit ?? 1000));
+    const rows = this.db
+      .prepare(
+        `SELECT * FROM audit_events ${where} ORDER BY ts DESC LIMIT ?`,
+      )
+      .all(...params, limit) as AuditRow[];
+    return rows.map(rowToAudit);
+  }
+
   close(): void {
     this.db.close();
   }
+}
+
+function rowToAudit(row: AuditRow): AuditEvent {
+  return {
+    id: row.id,
+    ts: row.ts,
+    actorUserId: row.actor_user_id,
+    actorIp: row.actor_ip,
+    action: row.action as AuditEvent['action'],
+    targetType: row.target_type as AuditEvent['targetType'],
+    targetId: row.target_id,
+    payload: JSON.parse(row.payload_json) as Record<string, unknown>,
+    payloadHash: row.payload_hash,
+  };
 }
 
 function rowToWatch(row: WatchRow): WatchlistEntry {

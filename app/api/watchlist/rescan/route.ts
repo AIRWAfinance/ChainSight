@@ -4,6 +4,7 @@ import { runScan, ScanError } from '@/lib/engine/runScan';
 import { getSession } from '@/lib/auth/session';
 import { sendScoreAlert } from '@/lib/notify/email';
 import type { WatchlistEntry } from '@/lib/storage';
+import { clientIpFrom, logWatchRescan } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 export const maxDuration = 120;
@@ -24,12 +25,13 @@ const ALERT_DELTA_THRESHOLD = Number(
   process.env['CHAINSIGHT_ALERT_DELTA'] ?? '5',
 );
 
-export async function POST() {
+export async function POST(req: Request) {
   const session = await getSession();
   if (!session) {
     return NextResponse.json({ error: 'unauthenticated' }, { status: 401 });
   }
 
+  const ip = clientIpFrom(req);
   const store = getStorageBackend();
   const entries = (await store.listWatch(session.userId)).filter(
     (e: WatchlistEntry) => e.status === 'active',
@@ -61,6 +63,14 @@ export async function POST() {
           report,
         });
       }
+
+      await logWatchRescan({
+        actorUserId: session.userId,
+        actorIp: ip,
+        watchId: entry.id,
+        address: entry.address,
+        riskScore: report.riskScore,
+      });
 
       results.push({
         watchId: entry.id,

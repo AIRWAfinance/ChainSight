@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getStorageBackend } from '@/lib/storage';
 import { getSession } from '@/lib/auth/session';
 import type { RiskReport } from '@/lib/engine/types';
+import { clientIpFrom, logScanSave } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 
@@ -46,5 +47,12 @@ export async function POST(req: Request) {
   }
 
   const summary = await getStorageBackend().saveScan(session.userId, report);
+  await logScanSave({
+    actorUserId: session.userId,
+    actorIp: clientIpFrom(req),
+    scanId: summary.id,
+    address: summary.address,
+    riskScore: summary.riskScore,
+  });
   return NextResponse.json({ scan: summary }, { status: 201 });
 }

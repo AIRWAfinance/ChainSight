@@ -3,6 +3,12 @@ import { z } from 'zod';
 import { authenticateUser } from '@/lib/auth/users';
 import { signSession, setSessionCookie } from '@/lib/auth/session';
 import { checkRateLimit, clientKey } from '@/lib/auth/rate-limit';
+import {
+  clientIpFrom,
+  logLoginFail,
+  logLoginRateLimited,
+  logLoginSuccess,
+} from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 
@@ -10,14 +16,6 @@ const Body = z.object({
   email: z.string().email(),
   password: z.string().min(1),
 });
-
-function clientIp(req: Request): string {
-  const fwd = req.headers.get('x-forwarded-for');
-  if (fwd) return fwd.split(',')[0]!.trim();
-  const real = req.headers.get('x-real-ip');
-  if (real) return real.trim();
-  return 'unknown';
-}
 
 export async function POST(req: Request) {
   let parsed;
@@ -30,10 +28,15 @@ export async function POST(req: Request) {
     );
   }
 
-  const ip = clientIp(req);
+  const ip = clientIpFrom(req);
   const key = clientKey(ip, parsed.email);
   const limit = checkRateLimit(key, { windowSeconds: 15 * 60, maxAttempts: 5 });
   if (!limit.allowed) {
+    await logLoginRateLimited({
+      actorIp: ip,
+      email: parsed.email,
+      retryAfterSeconds: limit.retryAfterSeconds,
+    });
     return NextResponse.json(
       {
         error: 'rate_limited',
@@ -48,6 +51,11 @@ export async function POST(req: Request) {
 
   const user = await authenticateUser(parsed.email, parsed.password);
   if (!user) {
+    await logLoginFail({
+      actorIp: ip,
+      email: parsed.email,
+      reason: 'invalid_credentials',
+    });
     return NextResponse.json(
       { error: 'invalid_credentials', message: 'Invalid email or password' },
       {
@@ -58,6 +66,11 @@ export async function POST(req: Request) {
   }
   const token = await signSession(user.id, user.email);
   await setSessionCookie(token);
+  await logLoginSuccess({
+    actorIp: ip,
+    userId: user.id,
+    email: user.email,
+  });
   return NextResponse.json(
     { user: { id: user.id, email: user.email } },
     { status: 200 },

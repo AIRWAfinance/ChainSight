@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server';
 import { getStorageBackend } from '@/lib/storage';
 import { getSession } from '@/lib/auth/session';
 import { renderReportPdf } from '@/lib/pdf/report-pdf';
+import { clientIpFrom, logScanExportPdf } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const session = await getSession();
@@ -23,6 +24,11 @@ export async function GET(
     );
   }
 
+  await logScanExportPdf({
+    actorUserId: session.userId,
+    actorIp: clientIpFrom(req),
+    scanId: id,
+  });
   const stream = await renderReportPdf(scan.report);
   // Pipe Node Readable -> Web ReadableStream
   const webStream = new ReadableStream({
