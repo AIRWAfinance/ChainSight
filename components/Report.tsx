@@ -6,6 +6,7 @@ import {
   recommendationProse,
 } from './ThresholdLadder';
 import { Findings } from './Findings';
+import { ScoreBreakdown } from './ScoreBreakdown';
 
 interface ReportProps {
   report: RiskReport;
@@ -49,6 +50,10 @@ export function Report({ report, variant = 'live' }: ReportProps) {
           <div className="lbl">Composite risk score</div>
           <RiskGauge score={report.riskScore} />
           <ThresholdLadder score={report.riskScore} />
+          <ScoreBreakdown
+            breakdown={report.scoreBreakdown}
+            total={report.riskScore}
+          />
           <div className="verdict">
             <span className={`verdict-tag${isCrit ? ' crit' : ''}`}>
               {recommendationLabel(report.recommendation)}

@@ -1,5 +1,6 @@
 import { EtherscanClient } from '../data/etherscan.js';
 import { MemoryCache } from '../cache/memory.js';
+import { CHAINS, isChainSlug, type ChainSlug } from '../data/chains.js';
 import { analyze } from './analyze.js';
 import type { RiskReport } from './types.js';
 
@@ -10,6 +11,7 @@ export class ScanError extends Error {
     message: string,
     public readonly code:
       | 'invalid_address'
+      | 'invalid_chain'
       | 'missing_api_key'
       | 'upstream_error'
       | 'rate_limited',
@@ -21,6 +23,7 @@ export class ScanError extends Error {
 }
 
 export interface RunScanOptions {
+  chain?: string;
   apiKey?: string;
   rateLimitPerSecond?: number;
   cacheTtlSeconds?: number;
@@ -32,8 +35,21 @@ export async function runScan(
 ): Promise<RiskReport> {
   const address = rawAddress.trim();
   if (!ADDRESS_RE.test(address)) {
-    throw new ScanError('Invalid Ethereum address', 'invalid_address', 400);
+    throw new ScanError('Invalid Ethereum-style address', 'invalid_address', 400);
   }
+
+  const chainSlug: ChainSlug = (() => {
+    const requested = (opts.chain ?? 'ethereum').toLowerCase();
+    if (!isChainSlug(requested)) {
+      throw new ScanError(
+        `Unsupported chain "${requested}". Supported: ${Object.keys(CHAINS).join(', ')}`,
+        'invalid_chain',
+        400,
+      );
+    }
+    return requested;
+  })();
+  const chain = CHAINS[chainSlug];
 
   const apiKey = opts.apiKey ?? process.env['ETHERSCAN_API_KEY'];
   if (!apiKey || apiKey === 'your_etherscan_key_here') {
@@ -49,6 +65,7 @@ export async function runScan(
     apiKey,
     rateLimitPerSecond: opts.rateLimitPerSecond ?? 4,
     cache,
+    chain,
   });
 
   let txs;
@@ -62,5 +79,12 @@ export async function runScan(
     throw new ScanError(msg, 'upstream_error', 502);
   }
 
-  return analyze(address, txs);
+  return analyze(address, txs, {
+    chain: chainSlug,
+    dataSourcesUsed: [
+      `${chain.explorerName} (V2 API)`,
+      'OFAC SDN',
+      'Curated mixer/scam lists',
+    ],
+  });
 }

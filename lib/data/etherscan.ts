@@ -1,9 +1,9 @@
 import PQueue from 'p-queue';
 import type { NormalizedTransaction } from '../engine/types.js';
 import type { Cache } from '../cache/types.js';
+import type { ChainConfig } from './chains.js';
 
 const ETHERSCAN_BASE = 'https://api.etherscan.io/v2/api';
-const ETHEREUM_MAINNET_CHAIN_ID = '1';
 
 interface EtherscanResponse<T> {
   status: string;
@@ -27,16 +27,19 @@ export interface EtherscanConfig {
   apiKey: string;
   rateLimitPerSecond: number;
   cache: Cache;
+  chain: ChainConfig;
 }
 
 export class EtherscanClient {
   private queue: PQueue;
   private cache: Cache;
   private apiKey: string;
+  private chain: ChainConfig;
 
   constructor(config: EtherscanConfig) {
     this.apiKey = config.apiKey;
     this.cache = config.cache;
+    this.chain = config.chain;
     this.queue = new PQueue({
       concurrency: 1,
       interval: 1000,
@@ -45,13 +48,13 @@ export class EtherscanClient {
   }
 
   private async fetchAction<T>(params: Record<string, string>): Promise<T> {
-    const cacheKey = `etherscan:${JSON.stringify(params)}`;
+    const cacheKey = `etherscan:${this.chain.slug}:${JSON.stringify(params)}`;
     const cached = this.cache.get<T>(cacheKey);
     if (cached !== null) return cached;
 
     const result = await this.queue.add(async () => {
       const url = new URL(ETHERSCAN_BASE);
-      url.searchParams.set('chainid', ETHEREUM_MAINNET_CHAIN_ID);
+      url.searchParams.set('chainid', String(this.chain.chainId));
       for (const [k, v] of Object.entries(params)) {
         url.searchParams.set(k, v);
       }
@@ -83,7 +86,7 @@ export class EtherscanClient {
       endblock: '99999999',
       sort: 'asc',
     });
-    return raw.map((tx) => normalize(tx, address, 'normal'));
+    return raw.map((tx) => normalize(tx, address, 'normal', this.chain));
   }
 
   async getInternalTransactions(address: string): Promise<NormalizedTransaction[]> {
@@ -95,7 +98,7 @@ export class EtherscanClient {
       endblock: '99999999',
       sort: 'asc',
     });
-    return raw.map((tx) => normalize(tx, address, 'internal'));
+    return raw.map((tx) => normalize(tx, address, 'internal', this.chain));
   }
 
   async getErc20Transactions(address: string): Promise<NormalizedTransaction[]> {
@@ -107,7 +110,7 @@ export class EtherscanClient {
       endblock: '99999999',
       sort: 'asc',
     });
-    return raw.map((tx) => normalize(tx, address, 'erc20'));
+    return raw.map((tx) => normalize(tx, address, 'erc20', this.chain));
   }
 
   async getAllTransactions(address: string): Promise<NormalizedTransaction[]> {
@@ -126,6 +129,7 @@ function normalize(
   tx: RawTx,
   address: string,
   kind: 'normal' | 'internal' | 'erc20',
+  chain: ChainConfig,
 ): NormalizedTransaction {
   const lowerAddr = address.toLowerCase();
   const from = tx.from.toLowerCase();
@@ -138,7 +142,8 @@ function normalize(
         : 'in';
 
   const valueWei = tx.value;
-  const valueEth = Number(BigInt(valueWei || '0')) / 1e18;
+  const divisor = 10 ** chain.nativeDecimals;
+  const valueEth = Number(BigInt(valueWei || '0')) / divisor;
 
   return {
     hash: tx.hash,

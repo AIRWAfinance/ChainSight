@@ -4,6 +4,8 @@ import { detectMixerExposure } from './mixer-exposure.js';
 import { detectScamExposure } from './scam-exposure.js';
 import { detectLayering } from './layering.js';
 import { detectPeelChain } from './peel-chain.js';
+import { detectHighRiskCounterparty } from './high-risk-counterparty.js';
+import { detectDormantActive } from './dormant-active.js';
 
 export const ALL_TYPOLOGIES: TypologyId[] = [
   'sanctions_exposure',
@@ -11,6 +13,8 @@ export const ALL_TYPOLOGIES: TypologyId[] = [
   'scam_exposure',
   'layering',
   'peel_chain',
+  'high_risk_counterparty',
+  'dormant_active',
 ];
 
 export function runAllTypologies(ctx: AddressContext): Flag[] {
@@ -20,5 +24,7 @@ export function runAllTypologies(ctx: AddressContext): Flag[] {
     ...detectScamExposure(ctx),
     ...detectLayering(ctx),
     ...detectPeelChain(ctx),
+    ...detectHighRiskCounterparty(ctx),
+    ...detectDormantActive(ctx),
   ];
 }

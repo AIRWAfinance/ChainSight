@@ -13,17 +13,18 @@ export const metadata: Metadata = {
 export default async function ScanPage({
   searchParams,
 }: {
-  searchParams: Promise<{ address?: string }>;
+  searchParams: Promise<{ address?: string; chain?: string }>;
 }) {
   const params = await searchParams;
   const address = typeof params.address === 'string' ? params.address : '';
+  const chain = typeof params.chain === 'string' ? params.chain : 'ethereum';
 
   return (
     <>
       <FilmGrain />
       <Ticker />
       <Nav />
-      <ScanFlow initialAddress={address} />
+      <ScanFlow initialAddress={address} initialChain={chain} />
       <Footer />
     </>
   );

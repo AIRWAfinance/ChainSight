@@ -1,5 +1,13 @@
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 
+export type ChainSlug =
+  | 'ethereum'
+  | 'polygon'
+  | 'bsc'
+  | 'arbitrum'
+  | 'base'
+  | 'optimism';
+
 export type RiskRecommendation =
   | 'low_risk'
   | 'standard_dd'
@@ -12,7 +20,9 @@ export type TypologyId =
   | 'mixer_exposure'
   | 'scam_exposure'
   | 'layering'
-  | 'peel_chain';
+  | 'peel_chain'
+  | 'high_risk_counterparty'
+  | 'dormant_active';
 
 export interface Citation {
   source: string;
@@ -40,11 +50,18 @@ export interface Flag {
   citations: Citation[];
 }
 
+export interface ScoreContribution {
+  typology: TypologyId;
+  points: number;
+  cappedAt?: number;
+}
+
 export interface RiskReport {
   address: string;
-  chain: 'ethereum';
+  chain: ChainSlug;
   scannedAt: string;
   riskScore: number;
+  scoreBreakdown: ScoreContribution[];
   recommendation: RiskRecommendation;
   flags: Flag[];
   summary: {

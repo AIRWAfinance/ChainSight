@@ -7,15 +7,15 @@ interface Stat {
 
 const STATS: Stat[] = [
   {
-    num: '5',
-    unit: 'typologies',
-    label: 'Sanctions · Mixer · Scam · Layering · Peel chain',
+    num: '6',
+    unit: 'chains',
+    label: 'Ethereum · Polygon · BSC · Arbitrum · Base · Optimism',
     marker: '§I',
   },
   {
-    num: '≈6',
-    unit: 'seconds',
-    label: 'Median scan time, cached 24h',
+    num: '7',
+    unit: 'typologies',
+    label: 'Sanctions · Mixer · Scam · Layering · Peel · Counterparty · Dormant',
     marker: '§II',
   },
   {

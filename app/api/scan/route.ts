@@ -7,6 +7,7 @@ export const maxDuration = 60;
 
 const Body = z.object({
   address: z.string().min(1),
+  chain: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const report = await runScan(parsed.address);
+    const report = await runScan(parsed.address, { chain: parsed.chain });
     return NextResponse.json({ report }, { status: 200 });
   } catch (err: unknown) {
     if (err instanceof ScanError) {

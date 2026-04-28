@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import type { RiskReport } from '@/lib/engine/types';
+import { CHAINS, isChainSlug, type ChainSlug } from '@/lib/data/chains';
 import { ScanForm } from '@/components/ScanForm';
 import { Report } from '@/components/Report';
 
 interface ScanFlowProps {
   initialAddress: string;
+  initialChain?: string;
 }
 
 type Stage = 'idle' | 'fetching' | 'analyzing' | 'done' | 'error';
@@ -37,56 +39,63 @@ const STAGE_LABELS: Record<Stage, string[]> = {
   error: [],
 };
 
-export function ScanFlow({ initialAddress }: ScanFlowProps) {
+export function ScanFlow({ initialAddress, initialChain }: ScanFlowProps) {
+  const validChain: ChainSlug =
+    initialChain && isChainSlug(initialChain) ? initialChain : 'ethereum';
+
   const [stage, setStage] = useState<Stage>(initialAddress ? 'fetching' : 'idle');
   const [activeStep, setActiveStep] = useState(0);
   const [report, setReport] = useState<RiskReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [scannedAddress, setScannedAddress] = useState<string>(initialAddress);
+  const [scannedChain, setScannedChain] = useState<ChainSlug>(validChain);
 
-  const runScan = useCallback(async (address: string) => {
-    setStage('fetching');
-    setActiveStep(0);
-    setReport(null);
-    setError(null);
-    setScannedAddress(address);
+  const runScan = useCallback(
+    async (address: string, chain: ChainSlug) => {
+      setStage('fetching');
+      setActiveStep(0);
+      setReport(null);
+      setError(null);
+      setScannedAddress(address);
+      setScannedChain(chain);
 
-    // Tick through stages so the UI shows progress
-    const stepInterval = window.setInterval(() => {
-      setActiveStep((s) => Math.min(s + 1, 2));
-    }, 1400);
+      const stepInterval = window.setInterval(() => {
+        setActiveStep((s) => Math.min(s + 1, 2));
+      }, 1400);
 
-    try {
-      const res = await fetch('/api/scan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ address }),
-      });
-      window.clearInterval(stepInterval);
-      setActiveStep(3);
+      try {
+        const res = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ address, chain }),
+        });
+        window.clearInterval(stepInterval);
+        setActiveStep(3);
 
-      const json = (await res.json()) as ApiSuccess | ApiError;
-      if (!res.ok || 'error' in json) {
-        const errMsg = 'message' in json ? json.message : 'Unknown error';
-        setError(errMsg);
+        const json = (await res.json()) as ApiSuccess | ApiError;
+        if (!res.ok || 'error' in json) {
+          const errMsg = 'message' in json ? json.message : 'Unknown error';
+          setError(errMsg);
+          setStage('error');
+          return;
+        }
+        setReport((json as ApiSuccess).report);
+        setStage('done');
+      } catch (err: unknown) {
+        window.clearInterval(stepInterval);
+        const msg = err instanceof Error ? err.message : 'Network error';
+        setError(msg);
         setStage('error');
-        return;
       }
-      setReport((json as ApiSuccess).report);
-      setStage('done');
-    } catch (err: unknown) {
-      window.clearInterval(stepInterval);
-      const msg = err instanceof Error ? err.message : 'Network error';
-      setError(msg);
-      setStage('error');
-    }
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (initialAddress && /^0x[a-fA-F0-9]{40}$/.test(initialAddress)) {
-      runScan(initialAddress);
+      runScan(initialAddress, validChain);
     }
-  }, [initialAddress, runScan]);
+  }, [initialAddress, validChain, runScan]);
 
   if (stage === 'fetching' || stage === 'analyzing') {
     const stages = STAGE_LABELS.fetching;
@@ -97,7 +106,7 @@ export function ScanFlow({ initialAddress }: ScanFlowProps) {
           Wallet <em>{scannedAddress.slice(0, 6)}…{scannedAddress.slice(-4)}</em>
         </h2>
         <p style={{ color: 'var(--paper-dim)', marginTop: '0.5rem' }}>
-          Reading the chain. This usually takes 4-8 seconds.
+          Reading <b>{CHAINS[scannedChain].name}</b>. This usually takes 4-8 seconds.
         </p>
         <div className="stages">
           {stages.map((label, i) => {
@@ -133,7 +142,11 @@ export function ScanFlow({ initialAddress }: ScanFlowProps) {
             <div className="scan-error" style={{ marginTop: '1.5rem' }}>{error}</div>
           </div>
           <div>
-            <ScanForm defaultAddress={scannedAddress} variant="compact" />
+            <ScanForm
+              defaultAddress={scannedAddress}
+              defaultChain={scannedChain}
+              variant="compact"
+            />
           </div>
         </div>
       </section>

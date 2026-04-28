@@ -48,6 +48,22 @@ const TYPOLOGIES: Typology[] = [
     source: 'FATF',
     ref: 'RFI §4.2(c)',
   },
+  {
+    num: 'VI.',
+    name: 'High-risk counterparty',
+    title: 'Concentrated value flow',
+    body: 'Flags wallets with many counterparties but where >70% of value flows to a small set — a mule-routing or controlled-counterparty signature.',
+    source: 'FATF',
+    ref: 'RFI §3.3',
+  },
+  {
+    num: 'VII.',
+    name: 'Dormant-then-active',
+    title: 'Sudden reactivation',
+    body: 'Flags long-dormant wallets (>1 year) that suddenly produce a burst of activity — often indicating compromised keys or coordinated washouts.',
+    source: 'FATF',
+    ref: 'RFI §3.5(c)',
+  },
 ];
 
 export function Methodology() {
@@ -56,8 +72,8 @@ export function Methodology() {
       <div className="meth-head">
         <div className="kicker">§II · Methodology</div>
         <h2>
-          Five typologies.<br />
-          Five citations. <em>Zero black box.</em>
+          Seven typologies.<br />
+          Citation per finding. <em>Zero black box.</em>
         </h2>
         <p className="lede">
           Each detector is a short, reviewable function — not a model. Results

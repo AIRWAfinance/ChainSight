@@ -6,6 +6,7 @@ const SAMPLE_REPORT: RiskReport = {
   chain: 'ethereum',
   scannedAt: '2026-04-28T11:31:00.040Z',
   riskScore: 15,
+  scoreBreakdown: [{ typology: 'layering', points: 15 }],
   recommendation: 'standard_dd',
   flags: [
     {

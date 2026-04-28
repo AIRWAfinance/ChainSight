@@ -2,17 +2,24 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
+import { CHAINS, SUPPORTED_CHAINS, type ChainSlug } from '@/lib/data/chains';
 
 const ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
 
 interface ScanFormProps {
   defaultAddress?: string;
+  defaultChain?: ChainSlug;
   variant?: 'landing' | 'compact';
 }
 
-export function ScanForm({ defaultAddress = '', variant = 'landing' }: ScanFormProps) {
+export function ScanForm({
+  defaultAddress = '',
+  defaultChain = 'ethereum',
+  variant = 'landing',
+}: ScanFormProps) {
   const router = useRouter();
   const [address, setAddress] = useState(defaultAddress);
+  const [chain, setChain] = useState<ChainSlug>(defaultChain);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -21,12 +28,14 @@ export function ScanForm({ defaultAddress = '', variant = 'landing' }: ScanFormP
     setError(null);
     const trimmed = address.trim();
     if (!ADDRESS_RE.test(trimmed)) {
-      setError('That does not look like a valid Ethereum address. Expected format: 0x followed by 40 hex characters.');
+      setError('That does not look like a valid EVM address. Expected format: 0x followed by 40 hex characters.');
       return;
     }
     setSubmitting(true);
-    router.push(`/scan?address=${encodeURIComponent(trimmed)}`);
+    router.push(`/scan?address=${encodeURIComponent(trimmed)}&chain=${chain}`);
   }
+
+  const cfg = CHAINS[chain];
 
   return (
     <>
@@ -37,9 +46,23 @@ export function ScanForm({ defaultAddress = '', variant = 'landing' }: ScanFormP
         </div>
         <div className="scan-form-body">
           <div className="scan-form-chain">
-            <span className="lbl">Chain</span>
-            <span className="v">⬢ Ethereum</span>
-            <span style={{ fontSize: '0.68rem', color: 'var(--paper-muted)' }}>mainnet</span>
+            <label className="lbl" htmlFor="cs-chain">Chain</label>
+            <select
+              id="cs-chain"
+              value={chain}
+              onChange={(e) => setChain(e.target.value as ChainSlug)}
+              disabled={submitting}
+              className="chain-select"
+            >
+              {SUPPORTED_CHAINS.map((slug) => (
+                <option key={slug} value={slug}>
+                  {CHAINS[slug].name}
+                </option>
+              ))}
+            </select>
+            <span style={{ fontSize: '0.68rem', color: 'var(--paper-muted)' }}>
+              {cfg.nativeSymbol} · chain {cfg.chainId}
+            </span>
           </div>
           <div className="scan-form-input">
             <label className="lbl" htmlFor="cs-address">Wallet address</label>
@@ -57,7 +80,7 @@ export function ScanForm({ defaultAddress = '', variant = 'landing' }: ScanFormP
         <div className="scan-form-submit">
           <div className="scan-form-legend">
             <span><b>~6s</b> est.</span>
-            <span><b>5</b> typologies</span>
+            <span><b>7</b> typologies</span>
             <span><b>FATF · OFAC</b> sources</span>
           </div>
           <button type="submit" className="scan-form-btn" disabled={submitting}>
@@ -70,7 +93,7 @@ export function ScanForm({ defaultAddress = '', variant = 'landing' }: ScanFormP
       {variant === 'landing' && (
         <div className="quick-links">
           <a onClick={() => setAddress('0x64954FcfEe8eF00416c40E3ff624dC6DdE7Ca0B4')}>
-            Try sample address
+            Try sample (Ethereum)
           </a>
           <a href="#methodology">Read methodology</a>
           <a href="https://github.com/AIRWAfinance/ChainSight" target="_blank" rel="noreferrer">

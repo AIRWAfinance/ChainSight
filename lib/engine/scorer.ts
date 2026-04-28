@@ -1,6 +1,7 @@
 import type {
   Flag,
   RiskRecommendation,
+  ScoreContribution,
   Severity,
   TypologyId,
 } from './types.js';
@@ -18,19 +19,39 @@ const TYPOLOGY_MULTIPLIER: Record<TypologyId, number> = {
   scam_exposure: 1.2,
   layering: 1.0,
   peel_chain: 1.0,
+  high_risk_counterparty: 1.1,
+  dormant_active: 0.9,
 };
 
 export function computeRiskScore(flags: Flag[]): number {
   if (flags.length === 0) return 0;
-
   let raw = 0;
   for (const flag of flags) {
     const base = SEVERITY_WEIGHT[flag.severity];
     const multiplier = TYPOLOGY_MULTIPLIER[flag.typology] ?? 1;
     raw += base * multiplier;
   }
-
   return Math.min(100, Math.round(raw));
+}
+
+/**
+ * Compute per-typology contributions to the composite score.
+ *
+ * Returns one entry per typology that contributed any points, with the
+ * uncapped raw points. The caller should display these against the
+ * (capped) total computeRiskScore returns.
+ */
+export function computeScoreBreakdown(flags: Flag[]): ScoreContribution[] {
+  const tally = new Map<TypologyId, number>();
+  for (const flag of flags) {
+    const base = SEVERITY_WEIGHT[flag.severity];
+    const multiplier = TYPOLOGY_MULTIPLIER[flag.typology] ?? 1;
+    const points = Math.round(base * multiplier);
+    tally.set(flag.typology, (tally.get(flag.typology) ?? 0) + points);
+  }
+  return [...tally.entries()]
+    .map(([typology, points]) => ({ typology, points }))
+    .sort((a, b) => b.points - a.points);
 }
 
 export function recommendation(score: number, flags: Flag[]): RiskRecommendation {

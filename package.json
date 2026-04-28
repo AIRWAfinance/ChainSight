@@ -1,6 +1,6 @@
 {
   "name": "chainsight",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "AML risk scoring engine for cryptocurrency wallets. Web app + CLI. Analyses Ethereum addresses against FATF typologies (sanctions, mixer, scam, layering, peel chains) and produces auditable risk reports.",
   "private": true,
   "type": "module",
@@ -15,6 +15,9 @@
     "cli": "tsx bin/cli.ts",
     "scan": "tsx bin/cli.ts scan",
     "sync:ofac": "tsx scripts/sync-ofac.ts",
+    "sync:eu": "tsx scripts/sync-eu.ts",
+    "sync:uk": "tsx scripts/sync-uk.ts",
+    "sync:all": "npm run sync:ofac && npm run sync:eu && npm run sync:uk",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

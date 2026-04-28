@@ -1,12 +1,17 @@
 import type {
   AddressContext,
+  ChainSlug,
   NormalizedTransaction,
   RiskReport,
 } from './types.js';
 import { runAllTypologies, ALL_TYPOLOGIES } from '../typologies/index.js';
-import { computeRiskScore, recommendation } from './scorer.js';
+import {
+  computeRiskScore,
+  computeScoreBreakdown,
+  recommendation,
+} from './scorer.js';
 
-const VERSION = '0.1.0';
+const VERSION = '0.3.0';
 
 export function buildContext(
   address: string,
@@ -33,20 +38,34 @@ export function buildContext(
   };
 }
 
+export interface AnalyzeOptions {
+  chain?: ChainSlug;
+  dataSourcesUsed?: string[];
+}
+
 export function analyze(
   address: string,
   transactions: NormalizedTransaction[],
-  dataSourcesUsed: string[] = ['Etherscan', 'OFAC SDN', 'Curated mixer/scam lists'],
+  opts: AnalyzeOptions = {},
 ): RiskReport {
+  const chain = opts.chain ?? 'ethereum';
+  const dataSourcesUsed = opts.dataSourcesUsed ?? [
+    'Etherscan v2',
+    'OFAC SDN',
+    'Curated mixer/scam lists',
+  ];
+
   const ctx = buildContext(address, transactions);
   const flags = runAllTypologies(ctx);
   const score = computeRiskScore(flags);
+  const scoreBreakdown = computeScoreBreakdown(flags);
 
   return {
     address: ctx.address,
-    chain: 'ethereum',
+    chain,
     scannedAt: new Date().toISOString(),
     riskScore: score,
+    scoreBreakdown,
     recommendation: recommendation(score, flags),
     flags,
     summary: {
