@@ -57,10 +57,15 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* Strip Bitdefender / Grammarly DOM injections before React hydrates. */}
+        {/*
+          Strip Bitdefender / Grammarly / similar extension attributes that
+          mutate every <div> before React can hydrate. Runs synchronously in
+          <head>, then keeps observing because extensions re-inject as React
+          renders new nodes.
+        */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var b=document.body;if(!b)return;var walk=function(n){if(n.nodeType===1){if(n.removeAttribute){n.removeAttribute('bis_skin_checked');n.removeAttribute('bis_register');n.removeAttribute('data-new-gr-c-s-check-loaded');n.removeAttribute('data-gr-ext-installed');for(var i=0;i<n.attributes.length;i++){var a=n.attributes[i];if(a&&a.name&&a.name.indexOf('__processed_')===0){n.removeAttribute(a.name);i--;}}}}for(var c=n.firstChild;c;c=c.nextSibling)walk(c);};walk(b);}catch(e){}})();`,
+            __html: `(function(){var BAD_ATTRS=['bis_skin_checked','bis_register','bis_use','data-bis-config','data-new-gr-c-s-check-loaded','data-gr-ext-installed'];var BAD_PREFIX='__processed_';function clean(node){if(!node||node.nodeType!==1)return;for(var i=0;i<BAD_ATTRS.length;i++){if(node.hasAttribute&&node.hasAttribute(BAD_ATTRS[i]))node.removeAttribute(BAD_ATTRS[i]);}if(node.attributes){for(var j=node.attributes.length-1;j>=0;j--){var a=node.attributes[j];if(a&&a.name&&a.name.indexOf(BAD_PREFIX)===0)node.removeAttribute(a.name);}}var c=node.firstChild;while(c){clean(c);c=c.nextSibling;}}function tick(){clean(document.documentElement);}tick();if(typeof MutationObserver!=='undefined'){var obs=new MutationObserver(function(muts){for(var i=0;i<muts.length;i++){var m=muts[i];if(m.type==='attributes'&&m.target&&m.target.removeAttribute){var n=m.attributeName||'';if(BAD_ATTRS.indexOf(n)>=0||n.indexOf(BAD_PREFIX)===0){try{m.target.removeAttribute(n);}catch(e){}}}else if(m.type==='childList'){for(var k=0;k<m.addedNodes.length;k++)clean(m.addedNodes[k]);}}});function start(){if(document.body){obs.observe(document.documentElement,{attributes:true,childList:true,subtree:true});}else setTimeout(start,16);}start();}})();`,
           }}
         />
       </head>
