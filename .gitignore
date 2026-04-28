@@ -4,8 +4,8 @@ node_modules/
 .pnp.js
 .yarn/install-state.gz
 
-# testing
-coverage/
+# testing — anchor to root so app/methodology/coverage/ is not ignored
+/coverage/
 
 # next.js
 .next/

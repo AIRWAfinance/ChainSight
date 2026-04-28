@@ -7,6 +7,15 @@ Practical tools for landing the first 5-10 ChainSight beta users.
 | [`OUTREACH.md`](OUTREACH.md) | Email + DM templates. Cold outreach + follow-up cadence. |
 | [`FEEDBACK_QUESTIONS.md`](FEEDBACK_QUESTIONS.md) | The 19 questions to ask each beta user at week 2. |
 | [`IP_NOTES.md`](IP_NOTES.md) | Bet365 employment-contract sanity check before outreach. |
+| [`AUDIT_AML_5_SPECIALISTS.md`](AUDIT_AML_5_SPECIALISTS.md) | 5-branch AML specialist audit of v0.6.0. Read before any sales call. |
+
+## Positioning
+
+ChainSight is **decision-support, not a regulated control.** It is an
+address-level AML screening + transaction-monitoring engine that sits
+alongside an existing AML stack. Every outreach message and demo must
+reflect that — `/methodology/coverage` on the live site is the canonical
+scope statement to share with any prospect's MLRO.
 
 ## Workflow
 

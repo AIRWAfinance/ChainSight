@@ -22,7 +22,8 @@ words. Compliance leads are senior people; respect their time.
 > Open source, deterministic, MIT licensed, runs in your stack.
 >
 > Free during beta. ~6 second scans on 6 chains today (ETH, Polygon, BSC,
-> Arbitrum, Base, Optimism). Email alerts on score changes. SAR-ready PDF export.
+> Arbitrum, Base, Optimism). Email alerts on score changes. Citation-backed
+> PDF report your analysts can attach to a case file.
 >
 > Worth 10 minutes? I'd value your read on whether the report shape
 > actually clears your audit checklist.
