@@ -40,6 +40,14 @@ export interface UserRow {
   id: string;
   email: string;
   createdAt: string;
+  totpEnabled?: boolean;
+}
+
+export interface UserTotpState {
+  /** Base32 secret (only readable while setup is in progress OR after verify). */
+  secret: string | null;
+  /** ISO-8601 timestamp of successful verify; null until enrolled. */
+  verifiedAt: string | null;
 }
 
 export interface StorageBackend {
@@ -70,4 +78,10 @@ export interface StorageBackend {
   // Audit (append-only — no update, no delete)
   appendAudit(event: Omit<AuditEvent, 'id' | 'ts' | 'payloadHash'>): Promise<AuditEvent>;
   listAudit(filter?: AuditFilter): Promise<AuditEvent[]>;
+
+  // TOTP MFA
+  setUserTotpSecret(userId: string, secretBase32: string): Promise<void>;
+  getUserTotpState(userId: string): Promise<UserTotpState | null>;
+  setUserTotpVerified(userId: string): Promise<void>;
+  clearUserTotp(userId: string): Promise<void>;
 }

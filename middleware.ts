@@ -46,7 +46,18 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret);
+    // Reject MFA-pending tokens — they grant access only to the
+    // MFA-completion endpoint, not protected pages.
+    const mfaComplete =
+      typeof payload.mfa === 'boolean' ? payload.mfa : true;
+    if (!mfaComplete) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('next', pathname);
+      url.searchParams.set('mfa', 'pending');
+      return applySecurityHeaders(NextResponse.redirect(url));
+    }
     return applySecurityHeaders(NextResponse.next());
   } catch {
     const url = req.nextUrl.clone();

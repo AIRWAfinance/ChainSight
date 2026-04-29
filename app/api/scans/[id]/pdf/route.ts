@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getStorageBackend } from '@/lib/storage';
-import { getSession } from '@/lib/auth/session';
+import { getAuthenticatedSession as getSession } from '@/lib/auth/session';
 import { renderReportPdf } from '@/lib/pdf/report-pdf';
 import { clientIpFrom, logScanExportPdf } from '@/lib/audit/log';
 

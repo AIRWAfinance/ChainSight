@@ -10,6 +10,7 @@ import type {
 } from './types.js';
 import type { AuditEvent, AuditFilter } from '../audit/types.js';
 import { hashPayload } from '../audit/hash.js';
+import type { UserTotpState } from './types.js';
 
 interface AuditDbRow {
   id: string;
@@ -30,6 +31,8 @@ interface UserDbRow {
   email: string;
   password_hash: string;
   created_at: string;
+  totp_secret?: string | null;
+  totp_verified_at?: string | null;
 }
 
 interface ScanDbRow {
@@ -71,8 +74,12 @@ export class PostgresStorage implements StorageBackend {
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        totp_secret TEXT,
+        totp_verified_at TEXT
       );
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_secret TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_verified_at TEXT;
 
       CREATE TABLE IF NOT EXISTS scans (
         id TEXT PRIMARY KEY,
@@ -145,19 +152,66 @@ export class PostgresStorage implements StorageBackend {
     const row = r.rows[0];
     if (!row) return null;
     return {
-      user: { id: row.id, email: row.email, createdAt: row.created_at },
+      user: {
+        id: row.id,
+        email: row.email,
+        createdAt: row.created_at,
+        totpEnabled: Boolean(row.totp_verified_at),
+      },
       passwordHash: row.password_hash,
     };
   }
 
   async findUserById(id: string): Promise<UserRow | null> {
     const r = await this.q<UserDbRow>(
-      'SELECT id, email, created_at, password_hash FROM users WHERE id = $1',
+      'SELECT id, email, created_at, password_hash, totp_verified_at FROM users WHERE id = $1',
       [id],
     );
     const row = r.rows[0];
     if (!row) return null;
-    return { id: row.id, email: row.email, createdAt: row.created_at };
+    return {
+      id: row.id,
+      email: row.email,
+      createdAt: row.created_at,
+      totpEnabled: Boolean(row.totp_verified_at),
+    };
+  }
+
+  async setUserTotpSecret(userId: string, secretBase32: string): Promise<void> {
+    await this.q(
+      `UPDATE users SET totp_secret = $1, totp_verified_at = NULL WHERE id = $2`,
+      [secretBase32, userId],
+    );
+  }
+
+  async getUserTotpState(userId: string): Promise<UserTotpState | null> {
+    const r = await this.q<{
+      totp_secret: string | null;
+      totp_verified_at: string | null;
+    }>('SELECT totp_secret, totp_verified_at FROM users WHERE id = $1', [
+      userId,
+    ]);
+    const row = r.rows[0];
+    if (!row) return null;
+    return {
+      secret: row.totp_secret ?? null,
+      verifiedAt: row.totp_verified_at ?? null,
+    };
+  }
+
+  async setUserTotpVerified(userId: string): Promise<void> {
+    const now = new Date().toISOString();
+    await this.q(`UPDATE users SET totp_verified_at = $1 WHERE id = $2`, [
+      now,
+      userId,
+    ]);
+  }
+
+  async clearUserTotp(userId: string): Promise<void> {
+    await this.q(
+      `UPDATE users SET totp_secret = NULL, totp_verified_at = NULL WHERE id = $1`,
+      [userId],
+    );
   }
 
   async saveScan(userId: string, report: RiskReport): Promise<SavedScanSummary> {

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getStorageBackend } from '@/lib/storage';
-import { getSession } from '@/lib/auth/session';
+import { getAuthenticatedSession as getSession } from '@/lib/auth/session';
 import type { RiskReport } from '@/lib/engine/types';
 import { clientIpFrom, logScanSave } from '@/lib/audit/log';
 

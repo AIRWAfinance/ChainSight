@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 
 const COOKIE_NAME = 'chainsight_session';
 const SESSION_TTL = 60 * 60 * 24 * 7; // 7 days
+const MFA_PENDING_TTL = 60 * 10; // 10 minutes — short-lived "half-auth"
 
 function getSecret(): Uint8Array {
   const secret = process.env['CHAINSIGHT_SESSION_SECRET'];
@@ -17,15 +18,26 @@ function getSecret(): Uint8Array {
 export interface Session {
   userId: string;
   email: string;
+  /**
+   * When true, the user has completed both password auth AND TOTP (or has no
+   * TOTP enrolled). When false, the cookie is a "MFA pending" token granting
+   * access only to the MFA-completion endpoint.
+   */
+  mfa: boolean;
   iat: number;
   exp: number;
 }
 
-export async function signSession(userId: string, email: string): Promise<string> {
-  return await new SignJWT({ userId, email })
+export async function signSession(
+  userId: string,
+  email: string,
+  opts: { mfa: boolean } = { mfa: true },
+): Promise<string> {
+  const ttl = opts.mfa ? SESSION_TTL : MFA_PENDING_TTL;
+  return await new SignJWT({ userId, email, mfa: opts.mfa })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(`${SESSION_TTL}s`)
+    .setExpirationTime(`${ttl}s`)
     .sign(getSecret());
 }
 
@@ -38,7 +50,16 @@ export async function verifySession(token: string): Promise<Session | null> {
       typeof payload.iat === 'number' &&
       typeof payload.exp === 'number'
     ) {
-      return payload as unknown as Session;
+      // mfa defaults to true for legacy tokens issued before this field existed.
+      const mfa =
+        typeof payload.mfa === 'boolean' ? payload.mfa : true;
+      return {
+        userId: payload.userId,
+        email: payload.email,
+        mfa,
+        iat: payload.iat,
+        exp: payload.exp,
+      };
     }
     return null;
   } catch {
@@ -69,8 +90,19 @@ export async function getSession(): Promise<Session | null> {
   return await verifySession(token);
 }
 
-export async function requireSession(): Promise<Session> {
+/**
+ * Returns the session ONLY if MFA is complete. MFA-pending sessions are
+ * treated as unauthenticated for everything except the MFA-completion endpoint.
+ */
+export async function getAuthenticatedSession(): Promise<Session | null> {
   const session = await getSession();
+  if (!session) return null;
+  if (!session.mfa) return null;
+  return session;
+}
+
+export async function requireSession(): Promise<Session> {
+  const session = await getAuthenticatedSession();
   if (!session) throw new Error('UNAUTHENTICATED');
   return session;
 }

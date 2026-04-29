@@ -12,6 +12,7 @@ import type {
 } from './types.js';
 import type { AuditEvent, AuditFilter } from '../audit/types.js';
 import { hashPayload } from '../audit/hash.js';
+import type { UserTotpState } from './types.js';
 
 interface AuditRow {
   id: string;
@@ -30,6 +31,8 @@ interface UserDbRow {
   email: string;
   password_hash: string;
   created_at: string;
+  totp_secret?: string | null;
+  totp_verified_at?: string | null;
 }
 
 interface ScanRow {
@@ -74,7 +77,9 @@ export class SqliteStorage implements StorageBackend {
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
         password_hash TEXT NOT NULL,
-        created_at TEXT NOT NULL
+        created_at TEXT NOT NULL,
+        totp_secret TEXT,
+        totp_verified_at TEXT
       );
 
       CREATE TABLE IF NOT EXISTS scans (
@@ -131,6 +136,18 @@ export class SqliteStorage implements StorageBackend {
       this.db.exec('DROP TABLE IF EXISTS scans');
       this.db.exec('DROP TABLE IF EXISTS watchlist');
     }
+    // Additive migration: add TOTP columns to existing user tables.
+    const userCols = this.db
+      .prepare(`PRAGMA table_info(users)`)
+      .all() as Array<{ name: string }>;
+    if (userCols.length > 0) {
+      if (!userCols.some((c) => c.name === 'totp_secret')) {
+        this.db.exec('ALTER TABLE users ADD COLUMN totp_secret TEXT');
+      }
+      if (!userCols.some((c) => c.name === 'totp_verified_at')) {
+        this.db.exec('ALTER TABLE users ADD COLUMN totp_verified_at TEXT');
+      }
+    }
   }
 
   async createUser(email: string, passwordHash: string): Promise<UserRow> {
@@ -152,17 +169,33 @@ export class SqliteStorage implements StorageBackend {
       .get(email) as UserDbRow | undefined;
     if (!row) return null;
     return {
-      user: { id: row.id, email: row.email, createdAt: row.created_at },
+      user: {
+        id: row.id,
+        email: row.email,
+        createdAt: row.created_at,
+        totpEnabled: Boolean(row.totp_verified_at),
+      },
       passwordHash: row.password_hash,
     };
   }
 
   async findUserById(id: string): Promise<UserRow | null> {
     const row = this.db
-      .prepare('SELECT id, email, created_at FROM users WHERE id = ?')
-      .get(id) as Pick<UserDbRow, 'id' | 'email' | 'created_at'> | undefined;
+      .prepare(
+        'SELECT id, email, created_at, totp_verified_at FROM users WHERE id = ?',
+      )
+      .get(id) as
+      | (Pick<UserDbRow, 'id' | 'email' | 'created_at'> & {
+          totp_verified_at?: string | null;
+        })
+      | undefined;
     if (!row) return null;
-    return { id: row.id, email: row.email, createdAt: row.created_at };
+    return {
+      id: row.id,
+      email: row.email,
+      createdAt: row.created_at,
+      totpEnabled: Boolean(row.totp_verified_at),
+    };
   }
 
   async saveScan(userId: string, report: RiskReport): Promise<SavedScanSummary> {
@@ -368,6 +401,39 @@ export class SqliteStorage implements StorageBackend {
         payloadHash,
       );
     return { id, ts, ...event, payloadHash };
+  }
+
+  async setUserTotpSecret(userId: string, secretBase32: string): Promise<void> {
+    this.db
+      .prepare(
+        `UPDATE users SET totp_secret = ?, totp_verified_at = NULL WHERE id = ?`,
+      )
+      .run(secretBase32, userId);
+  }
+
+  async getUserTotpState(userId: string): Promise<UserTotpState | null> {
+    const row = this.db
+      .prepare('SELECT totp_secret, totp_verified_at FROM users WHERE id = ?')
+      .get(userId) as
+      | { totp_secret: string | null; totp_verified_at: string | null }
+      | undefined;
+    if (!row) return null;
+    return { secret: row.totp_secret ?? null, verifiedAt: row.totp_verified_at ?? null };
+  }
+
+  async setUserTotpVerified(userId: string): Promise<void> {
+    const now = new Date().toISOString();
+    this.db
+      .prepare(`UPDATE users SET totp_verified_at = ? WHERE id = ?`)
+      .run(now, userId);
+  }
+
+  async clearUserTotp(userId: string): Promise<void> {
+    this.db
+      .prepare(
+        `UPDATE users SET totp_secret = NULL, totp_verified_at = NULL WHERE id = ?`,
+      )
+      .run(userId);
   }
 
   async listAudit(filter: AuditFilter = {}): Promise<AuditEvent[]> {

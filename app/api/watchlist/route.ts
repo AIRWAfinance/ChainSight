@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getStorageBackend } from '@/lib/storage';
 import { isChainSlug } from '@/lib/data/chains';
-import { getSession } from '@/lib/auth/session';
+import { getAuthenticatedSession as getSession } from '@/lib/auth/session';
 import type { ChainSlug } from '@/lib/engine/types';
 import { clientIpFrom, logWatchAdd } from '@/lib/audit/log';
 

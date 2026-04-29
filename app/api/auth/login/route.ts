@@ -64,7 +64,22 @@ export async function POST(req: Request) {
       },
     );
   }
-  const token = await signSession(user.id, user.email);
+
+  // If the user has TOTP enrolled, issue an MFA-pending cookie and instruct
+  // the client to call /api/auth/mfa/login with the TOTP code.
+  if (user.totpEnabled) {
+    const pendingToken = await signSession(user.id, user.email, { mfa: false });
+    await setSessionCookie(pendingToken);
+    return NextResponse.json(
+      {
+        needs_mfa: true,
+        user: { id: user.id, email: user.email },
+      },
+      { status: 200 },
+    );
+  }
+
+  const token = await signSession(user.id, user.email, { mfa: true });
   await setSessionCookie(token);
   await logLoginSuccess({
     actorIp: ip,

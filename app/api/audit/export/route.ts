@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getStorageBackend } from '@/lib/storage';
-import { getSession } from '@/lib/auth/session';
+import { getAuthenticatedSession as getSession } from '@/lib/auth/session';
 import { clientIpFrom, logAuditExport } from '@/lib/audit/log';
 import type { AuditAction, AuditTargetType } from '@/lib/audit/types';
 

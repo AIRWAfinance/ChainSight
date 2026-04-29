@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getStorageBackend } from '@/lib/storage';
-import { getSession } from '@/lib/auth/session';
+import { getAuthenticatedSession as getSession } from '@/lib/auth/session';
 import { clientIpFrom, logScanDelete } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';

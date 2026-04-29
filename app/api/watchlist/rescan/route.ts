@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getStorageBackend } from '@/lib/storage';
 import { runScan, ScanError } from '@/lib/engine/runScan';
-import { getSession } from '@/lib/auth/session';
+import { getAuthenticatedSession as getSession } from '@/lib/auth/session';
 import { sendScoreAlert } from '@/lib/notify/email';
 import type { WatchlistEntry } from '@/lib/storage';
 import { clientIpFrom, logWatchRescan } from '@/lib/audit/log';
