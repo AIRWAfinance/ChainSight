@@ -91,6 +91,10 @@ export function Methodology() {
           </div>
         ))}
       </div>
+      <div className="meth-deep-links">
+        <a href="/methodology/coverage">→ Coverage &amp; scope</a>
+        <a href="/methodology/calibration">→ Score calibration</a>
+      </div>
     </section>
   );
 }
