@@ -87,7 +87,7 @@ const TYPOLOGIES: TypologyRow[] = [
     typology: 'layering',
     multiplier: 1.0,
     rationale:
-      'Pass-through pattern (FATF VA RFI 2020 §4.2(a)). No premium or discount — this is the baseline behavioural detector against which others are scaled.',
+      'Pass-through pattern (FATF VA RFI 2020 §4.2(a)). No premium or discount — this is the baseline behavioural detector against which others are scaled. Multi-window: matches in ≤15min get high severity, ≤1h get medium, ≤24h get low. Critical-tier triggers at ≥25 matches OR ≥100 ETH-equivalent (or ≥100k stablecoin USD). ERC-20 grouped per token contract — ETH layering and USDT layering on the same address produce two separate findings.',
   },
   {
     typology: 'peel_chain',

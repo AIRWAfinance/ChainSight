@@ -130,6 +130,8 @@ export interface NormalizedTransaction {
   kind: 'normal' | 'internal' | 'erc20';
   tokenSymbol?: string;
   tokenContract?: string;
+  /** ERC-20 token decimal precision. Undefined for native chain transactions. */
+  tokenDecimal?: number;
 }
 
 export interface AddressContext {

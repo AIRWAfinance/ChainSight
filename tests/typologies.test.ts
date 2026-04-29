@@ -160,6 +160,169 @@ describe('detectLayering', () => {
     expect(flags).toHaveLength(1);
     expect(flags[0].severity).toBe('critical');
   });
+
+  it('multi-window: flows in the 15min window land in the fast tier (high severity)', () => {
+    const txs = [];
+    let t = 1_700_000_000;
+    for (let i = 0; i < 4; i += 1) {
+      txs.push(
+        makeTx({ from: RANDOM_PEER_A, to: SUBJECT, direction: 'in', valueEth: 1, timestamp: t }),
+      );
+      txs.push(
+        makeTx({ from: SUBJECT, to: RANDOM_PEER_B, direction: 'out', valueEth: 1, timestamp: t + 5 * 60 }),
+      );
+      t += 3600;
+    }
+    const ctx = buildContext(SUBJECT, txs);
+    const flags = detectLayering(ctx);
+    expect(flags).toHaveLength(1);
+    // 4 fast-window matches → high (under critical threshold)
+    expect(flags[0].severity).toBe('high');
+    expect(flags[0].description).toContain('≤15min: 4');
+  });
+
+  it('multi-window: flows >15min but ≤24h land in the slow tier (low severity)', () => {
+    const txs = [];
+    let t = 1_700_000_000;
+    for (let i = 0; i < 3; i += 1) {
+      txs.push(
+        makeTx({ from: RANDOM_PEER_A, to: SUBJECT, direction: 'in', valueEth: 1, timestamp: t }),
+      );
+      txs.push(
+        makeTx({ from: SUBJECT, to: RANDOM_PEER_B, direction: 'out', valueEth: 1, timestamp: t + 6 * 3600 }),
+      );
+      t += 48 * 3600;
+    }
+    const ctx = buildContext(SUBJECT, txs);
+    const flags = detectLayering(ctx);
+    expect(flags).toHaveLength(1);
+    expect(flags[0].severity).toBe('low');
+    expect(flags[0].description).toContain('≤24h: 3');
+  });
+
+  it('ERC-20: flags layering across stablecoin USDT separate from ETH', () => {
+    const txs = [];
+    let t = 1_700_000_000;
+    // 4 USDT pass-through pairs (200 USDT each, fast window)
+    for (let i = 0; i < 4; i += 1) {
+      txs.push(
+        makeTx({
+          from: RANDOM_PEER_A,
+          to: SUBJECT,
+          direction: 'in',
+          valueEth: 200,
+          timestamp: t,
+          kind: 'erc20',
+          tokenSymbol: 'USDT',
+          tokenContract: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        }),
+      );
+      txs.push(
+        makeTx({
+          from: SUBJECT,
+          to: RANDOM_PEER_B,
+          direction: 'out',
+          valueEth: 200,
+          timestamp: t + 120,
+          kind: 'erc20',
+          tokenSymbol: 'USDT',
+          tokenContract: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        }),
+      );
+      t += 3600;
+    }
+    const ctx = buildContext(SUBJECT, txs);
+    const flags = detectLayering(ctx);
+    expect(flags).toHaveLength(1);
+    expect(flags[0].title).toContain('USDT');
+    expect(flags[0].description).toContain('stablecoin');
+  });
+
+  it('ERC-20: stablecoin critical threshold uses USD-equivalent (>=100k)', () => {
+    const txs = [];
+    let t = 1_700_000_000;
+    // 3 pass-through of 50k USDT each → 150k notional → critical
+    for (let i = 0; i < 3; i += 1) {
+      txs.push(
+        makeTx({
+          from: RANDOM_PEER_A,
+          to: SUBJECT,
+          direction: 'in',
+          valueEth: 50_000,
+          timestamp: t,
+          kind: 'erc20',
+          tokenSymbol: 'USDC',
+          tokenContract: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        }),
+      );
+      txs.push(
+        makeTx({
+          from: SUBJECT,
+          to: RANDOM_PEER_B,
+          direction: 'out',
+          valueEth: 50_000,
+          timestamp: t + 600,
+          kind: 'erc20',
+          tokenSymbol: 'USDC',
+          tokenContract: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        }),
+      );
+      t += 3600;
+    }
+    const ctx = buildContext(SUBJECT, txs);
+    const flags = detectLayering(ctx);
+    expect(flags).toHaveLength(1);
+    expect(flags[0].severity).toBe('critical');
+  });
+
+  it('ERC-20: separate flags for ETH layering and USDT layering on same address', () => {
+    const txs = [];
+    let t = 1_700_000_000;
+    // 3 ETH pass-through
+    for (let i = 0; i < 3; i += 1) {
+      txs.push(
+        makeTx({ from: RANDOM_PEER_A, to: SUBJECT, direction: 'in', valueEth: 1, timestamp: t }),
+      );
+      txs.push(
+        makeTx({ from: SUBJECT, to: RANDOM_PEER_B, direction: 'out', valueEth: 1, timestamp: t + 60 }),
+      );
+      t += 3600;
+    }
+    // 3 USDT pass-through
+    for (let i = 0; i < 3; i += 1) {
+      txs.push(
+        makeTx({
+          from: RANDOM_PEER_C,
+          to: SUBJECT,
+          direction: 'in',
+          valueEth: 500,
+          timestamp: t,
+          kind: 'erc20',
+          tokenSymbol: 'USDT',
+          tokenContract: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        }),
+      );
+      txs.push(
+        makeTx({
+          from: SUBJECT,
+          to: RANDOM_PEER_D,
+          direction: 'out',
+          valueEth: 500,
+          timestamp: t + 120,
+          kind: 'erc20',
+          tokenSymbol: 'USDT',
+          tokenContract: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+        }),
+      );
+      t += 3600;
+    }
+    const ctx = buildContext(SUBJECT, txs);
+    const flags = detectLayering(ctx);
+    expect(flags).toHaveLength(2);
+    const titles = flags.map((f) => f.title).sort();
+    expect(titles[0]).toContain('ETH');
+    expect(titles[1]).toContain('USDT');
+  });
 });
 
 describe('detectPeelChain', () => {

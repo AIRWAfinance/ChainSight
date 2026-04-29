@@ -21,6 +21,7 @@ interface RawTx {
   isError: string;
   contractAddress?: string;
   tokenSymbol?: string;
+  tokenDecimal?: string;
 }
 
 export interface EtherscanConfig {
@@ -142,7 +143,18 @@ function normalize(
         : 'in';
 
   const valueWei = tx.value;
-  const divisor = 10 ** chain.nativeDecimals;
+  // For ERC-20, use the per-token decimals; native txs use the chain's
+  // native-asset decimals. Older Etherscan responses may omit tokenDecimal —
+  // fall back to 18 (the EVM default) rather than silently mis-scaling.
+  const tokenDecimal =
+    kind === 'erc20'
+      ? tx.tokenDecimal !== undefined
+        ? Number(tx.tokenDecimal)
+        : 18
+      : undefined;
+  const decimals =
+    kind === 'erc20' ? (tokenDecimal ?? 18) : chain.nativeDecimals;
+  const divisor = 10 ** decimals;
   const valueEth = Number(BigInt(valueWei || '0')) / divisor;
 
   return {
@@ -158,5 +170,6 @@ function normalize(
     kind,
     tokenSymbol: tx.tokenSymbol,
     tokenContract: tx.contractAddress,
+    tokenDecimal,
   };
 }
