@@ -15,7 +15,7 @@ import { computeGraph } from './graph.js';
 import { rulesVersionMeta } from './rules-version.js';
 import { getSanctionsFreshness } from '../data/sanctions.js';
 
-const VERSION = '0.7.0';
+const VERSION = '0.7.1';
 
 export function buildContext(
   address: string,

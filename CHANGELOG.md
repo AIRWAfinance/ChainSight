@@ -4,6 +4,43 @@ All notable changes to ChainSight are recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] — 2026-04-29
+
+### Added
+
+- **TOTP MFA** (`lib/auth/totp.ts`): pure-Node RFC 6238 implementation —
+  HMAC-SHA1, 30-second step, 6-digit codes, ±1 step skew tolerance,
+  constant-time compare. Tests include the RFC 6238 reference vector
+  (`287082` at T=59).
+- **MFA endpoints**: `/api/auth/mfa/{setup,verify,login,disable}`.
+  Disable requires both current password AND current TOTP code.
+- **Half-auth session model**: `signSession({ mfa: false })` issues a
+  10-minute MFA-pending cookie. Protected pages gated on `mfa: true`
+  via middleware + new `getAuthenticatedSession()` (replaces
+  `getSession` in all 7 protected API routes).
+- **MFA enrolment UI** (`/settings/mfa`): Setup → otpauth URI + secret
+  + manual-entry table → Verify → Disable controls.
+- **Login two-step flow**: password step returns `{ needs_mfa: true }`
+  for enrolled users; client posts code to `/api/auth/mfa/login` to
+  upgrade the cookie to a full session.
+- **Storage**: `totp_secret` + `totp_verified_at` columns on `users`
+  (SQLite + Postgres) with additive migration so existing databases
+  don't break. `UserRow.totpEnabled` flag exposed in `/api/auth/me`.
+- **Audit-log events**: `mfa_setup_started`, `mfa_enrolled`,
+  `mfa_verify_fail`, MFA-stage login fail, `mfa_disable_password_fail`,
+  `mfa_disable_code_fail`, `mfa_disabled`.
+- **Nav**: signed-in users see a `2FA` / `2FA ✓` link to
+  `/settings/mfa`.
+
+### Notes
+
+- v0.7.1 fully closes audit Blocker 5.7 (no more "partial" status).
+- QR-code rendering deferred to v0.8 — manual entry is universally
+  supported by authenticator apps and avoids adding a runtime dep
+  mid-cycle.
+
+---
+
 ## [0.7.0] — 2026-04-29
 
 The "regulator-ready" release. Closes every 🔴 blocker identified by the

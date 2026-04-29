@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 interface Me {
   id: string;
   email: string;
+  mfaEnabled?: boolean;
+  mfaPending?: boolean;
 }
 
 export function NavAuth() {
@@ -44,6 +46,13 @@ export function NavAuth() {
     <div className="nav-right nav-right-authed">
       <span className="nav-email mono">{me.email}</span>
       <Link href="/scan" className="btn-line">Run a scan</Link>
+      <Link
+        href="/settings/mfa"
+        className="btn-line"
+        title={me.mfaEnabled ? 'Two-factor enabled' : 'Two-factor recommended'}
+      >
+        {me.mfaEnabled ? '2FA ✓' : '2FA'}
+      </Link>
       <button type="button" className="btn-line" onClick={logout}>
         Sign out
       </button>

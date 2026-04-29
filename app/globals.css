@@ -2467,3 +2467,180 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   text-decoration: none;
 }
 .meth-deep-links a:hover { color: var(--gold-soft); }
+
+/* ===========================================================================
+   MFA settings page (/settings/mfa) + login MFA second-step
+   --------------------------------------------------------------------------- */
+.mfa-main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 4rem 2rem 6rem;
+}
+.mfa-hero {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 2.5rem;
+  margin-bottom: 2.5rem;
+}
+.mfa-hero h1 {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+  font-weight: 400;
+  margin: 0.5rem 0 1rem;
+}
+.mfa-hero .lede {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--paper-dim);
+  max-width: 60ch;
+}
+.mfa-card {
+  border: 1px solid var(--line-strong);
+  background: var(--ink-1);
+  padding: 2rem;
+}
+.mfa-card h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--paper);
+}
+.mfa-card p {
+  font-family: var(--font-serif);
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--paper-dim);
+  margin: 0 0 1rem;
+}
+.mfa-card code {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--gold);
+  background: var(--ink-0);
+  padding: 0.15rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  word-break: break-all;
+}
+.mfa-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+}
+.mfa-status .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.mfa-status-off { color: var(--paper-muted); }
+.mfa-status-off .dot { background: var(--paper-muted); }
+.mfa-status-on { color: var(--green); border-color: var(--green); }
+.mfa-status-on .dot { background: var(--green); }
+.mfa-status-pending { color: var(--gold); border-color: var(--gold); }
+.mfa-status-pending .dot {
+  background: var(--gold);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.mfa-field {
+  border-top: 1px solid var(--line);
+  padding-top: 1rem;
+  margin-top: 1.25rem;
+}
+.mfa-field > label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--paper-muted);
+  margin-bottom: 0.6rem;
+}
+.mfa-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.mfa-copy-row.inline { display: inline-flex; }
+.mfa-uri {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.78rem;
+  background: var(--ink-0);
+  word-break: break-all;
+}
+.btn-secondary {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.55rem 1rem;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--paper);
+  cursor: pointer;
+  transition: all 120ms;
+}
+.btn-secondary:hover {
+  border-color: var(--paper-muted);
+  background: var(--ink-1);
+}
+.btn-secondary.tiny {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.65rem;
+}
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--paper-muted);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
+  text-align: left;
+}
+.btn-link:hover { color: var(--paper); }
+.mfa-manual {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 0 0;
+  border-top: 1px dashed var(--line);
+}
+.mfa-manual li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.45rem 0;
+  border-bottom: 1px dashed var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  flex-wrap: wrap;
+}
+.mfa-manual li > span:first-child {
+  color: var(--paper-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+.mfa-confirm { margin-top: 0.5rem; }
+.auth-mfa-blurb {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--paper-dim);
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
