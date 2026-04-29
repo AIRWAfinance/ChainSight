@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { registerUser } from '@/lib/auth/users';
 import { signSession, setSessionCookie } from '@/lib/auth/session';
+import { ensureAdminFromAllowlist } from '@/lib/auth/admin';
 import { clientIpFrom, logRegister } from '@/lib/audit/log';
 
 export const runtime = 'nodejs';
@@ -25,11 +26,14 @@ export async function POST(req: Request) {
   const ip = clientIpFrom(req);
   try {
     const user = await registerUser(parsed.email, parsed.password);
-    const token = await signSession(user.id, user.email);
+    // Newly-registered users default to 'user'. Promote if email is on the
+    // env allowlist (lets you bootstrap your own admin on first signup).
+    const role = await ensureAdminFromAllowlist(user.id, user.email, 'user');
+    const token = await signSession(user.id, user.email, { mfa: true, role });
     await setSessionCookie(token);
     await logRegister({ actorIp: ip, userId: user.id, email: user.email });
     return NextResponse.json(
-      { user: { id: user.id, email: user.email } },
+      { user: { id: user.id, email: user.email, role } },
       { status: 201 },
     );
   } catch (err: unknown) {

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 interface Me {
   id: string;
   email: string;
+  role?: 'admin' | 'user';
   mfaEnabled?: boolean;
   mfaPending?: boolean;
 }
@@ -53,6 +54,11 @@ export function NavAuth() {
       >
         {me.mfaEnabled ? '2FA ✓' : '2FA'}
       </Link>
+      {me.role === 'admin' && (
+        <Link href="/admin" className="btn-line" title="Admin console">
+          Admin
+        </Link>
+      )}
       <button type="button" className="btn-line" onClick={logout}>
         Sign out
       </button>

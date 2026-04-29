@@ -10,7 +10,7 @@ import type {
 } from './types.js';
 import type { AuditEvent, AuditFilter } from '../audit/types.js';
 import { hashPayload } from '../audit/hash.js';
-import type { UserTotpState } from './types.js';
+import type { UserTotpState, UserRole } from './types.js';
 
 interface AuditDbRow {
   id: string;
@@ -33,6 +33,7 @@ interface UserDbRow {
   created_at: string;
   totp_secret?: string | null;
   totp_verified_at?: string | null;
+  role?: string | null;
 }
 
 interface ScanDbRow {
@@ -80,6 +81,7 @@ export class PostgresStorage implements StorageBackend {
       );
       ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_secret TEXT;
       ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_verified_at TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'user';
 
       CREATE TABLE IF NOT EXISTS scans (
         id TEXT PRIMARY KEY,
@@ -137,10 +139,10 @@ export class PostgresStorage implements StorageBackend {
     const id = randomUUID();
     const createdAt = new Date().toISOString();
     await this.q(
-      `INSERT INTO users (id, email, password_hash, created_at) VALUES ($1, $2, $3, $4)`,
+      `INSERT INTO users (id, email, password_hash, created_at, role) VALUES ($1, $2, $3, $4, 'user')`,
       [id, email, passwordHash, createdAt],
     );
-    return { id, email, createdAt };
+    return { id, email, createdAt, role: 'user' };
   }
 
   async findUserByEmail(
@@ -157,6 +159,7 @@ export class PostgresStorage implements StorageBackend {
         email: row.email,
         createdAt: row.created_at,
         totpEnabled: Boolean(row.totp_verified_at),
+        role: (row.role as UserRole) ?? 'user',
       },
       passwordHash: row.password_hash,
     };
@@ -164,7 +167,7 @@ export class PostgresStorage implements StorageBackend {
 
   async findUserById(id: string): Promise<UserRow | null> {
     const r = await this.q<UserDbRow>(
-      'SELECT id, email, created_at, password_hash, totp_verified_at FROM users WHERE id = $1',
+      'SELECT id, email, created_at, password_hash, totp_verified_at, role FROM users WHERE id = $1',
       [id],
     );
     const row = r.rows[0];
@@ -174,6 +177,7 @@ export class PostgresStorage implements StorageBackend {
       email: row.email,
       createdAt: row.created_at,
       totpEnabled: Boolean(row.totp_verified_at),
+      role: (row.role as UserRole) ?? 'user',
     };
   }
 
@@ -212,6 +216,55 @@ export class PostgresStorage implements StorageBackend {
       `UPDATE users SET totp_secret = NULL, totp_verified_at = NULL WHERE id = $1`,
       [userId],
     );
+  }
+
+  async setUserRole(userId: string, role: UserRole): Promise<void> {
+    await this.q(`UPDATE users SET role = $1 WHERE id = $2`, [role, userId]);
+  }
+
+  async listUsers(limit: number = 200): Promise<UserRow[]> {
+    const r = await this.q<{
+      id: string;
+      email: string;
+      created_at: string;
+      totp_verified_at: string | null;
+      role: string | null;
+    }>(
+      `SELECT id, email, created_at, totp_verified_at, role
+       FROM users ORDER BY created_at DESC LIMIT $1`,
+      [limit],
+    );
+    return r.rows.map((row) => ({
+      id: row.id,
+      email: row.email,
+      createdAt: row.created_at,
+      totpEnabled: Boolean(row.totp_verified_at),
+      role: (row.role as UserRole) ?? 'user',
+    }));
+  }
+
+  async countUsers(): Promise<{
+    total: number;
+    admins: number;
+    mfaEnabled: number;
+  }> {
+    const r = await this.q<{
+      total: string;
+      admins: string;
+      mfa_enabled: string;
+    }>(
+      `SELECT
+         COUNT(*) AS total,
+         COUNT(*) FILTER (WHERE role = 'admin') AS admins,
+         COUNT(*) FILTER (WHERE totp_verified_at IS NOT NULL) AS mfa_enabled
+       FROM users`,
+    );
+    const row = r.rows[0]!;
+    return {
+      total: Number(row.total),
+      admins: Number(row.admins),
+      mfaEnabled: Number(row.mfa_enabled),
+    };
   }
 
   async saveScan(userId: string, report: RiskReport): Promise<SavedScanSummary> {

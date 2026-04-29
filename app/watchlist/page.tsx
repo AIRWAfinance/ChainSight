@@ -1,21 +1,21 @@
 import type { Metadata } from 'next';
 import { AppShell } from '@/components/app-shell/AppShell';
-import { Dashboard } from './Dashboard';
+import { WatchlistView } from './WatchlistView';
 
 export const metadata: Metadata = {
-  title: 'Dashboard — ChainSight',
-  description: 'Saved scans + watchlist for the wallets you monitor.',
+  title: 'Watchlist — ChainSight',
+  description: 'Addresses being monitored for AML risk changes.',
 };
 
-export default function DashboardPage() {
+export default function WatchlistPage() {
   return (
     <AppShell
       crumbs={[
         { label: 'Workspace' },
-        { label: 'Dashboard' },
+        { label: 'Watchlist' },
       ]}
     >
-      <Dashboard />
+      <WatchlistView />
     </AppShell>
   );
 }

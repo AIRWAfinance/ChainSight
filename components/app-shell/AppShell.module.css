@@ -1,0 +1,411 @@
+/* =====================================================================
+   AppShell — Navy Bureau · authenticated app layout
+   Sidebar (workspace + reference) + topbar + page area.
+   Tokens come from globals.css :root.
+   ===================================================================== */
+
+.shell {
+  display: grid;
+  grid-template-columns: var(--app-sidebar-w, 248px) 1fr;
+  min-height: calc(100vh - var(--ticker-h, 33px));
+  background: var(--paper);
+}
+
+/* ===== Sidebar ===== */
+.side {
+  background: var(--paper-soft);
+  border-right: 1px solid var(--paper-line);
+  padding: 1.1rem 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  position: sticky;
+  top: 0;
+  height: calc(100vh - var(--ticker-h, 33px));
+  overflow-y: auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.35rem;
+  text-decoration: none;
+  color: inherit;
+}
+.brandMark {
+  width: 22px;
+  height: 22px;
+  background: var(--navy);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.brandMark::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
+}
+.brandLockup {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+  min-width: 0;
+}
+.brandLogo {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.brandBy {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--slate-soft);
+  margin-top: 0.2rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.groupLabel {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--slate-soft);
+  padding: 0.35rem 0.65rem 0.55rem;
+  font-weight: 500;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  color: var(--slate);
+  transition: background 0.15s ease, color 0.15s ease;
+  text-decoration: none;
+}
+.item:hover {
+  background: rgba(15, 42, 74, 0.045);
+  color: var(--navy);
+}
+.itemActive {
+  background: rgba(15, 42, 74, 0.07);
+  color: var(--navy);
+  font-weight: 500;
+  box-shadow: inset 2px 0 0 var(--gold);
+}
+.itemIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: currentColor;
+  opacity: 0.75;
+}
+.itemIcon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.5;
+}
+.itemLabel {
+  /* Visible by default; collapsed in the rail-mode media query below. */
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.itemCount {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--slate-soft);
+  font-weight: 400;
+}
+.itemActive .itemCount {
+  color: var(--navy);
+}
+.itemBadge {
+  margin-left: auto;
+  background: var(--gold);
+  color: var(--navy);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  letter-spacing: 0.02em;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--paper-line);
+  margin: 0;
+}
+
+.sideFooter {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.user {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+.user:hover {
+  background: rgba(15, 42, 74, 0.045);
+}
+.userAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: var(--paper);
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+.userName {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--navy);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.userMeta {
+  font-size: 0.68rem;
+  color: var(--slate-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.userChev {
+  margin-left: auto;
+  color: var(--slate-soft);
+  flex-shrink: 0;
+}
+
+.signedOutCta {
+  padding: 0.55rem 0.65rem;
+  font-size: 0.82rem;
+  color: var(--slate-soft);
+  font-style: italic;
+}
+
+/* ===== Main content ===== */
+.content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  background: var(--paper);
+  border-bottom: 1px solid var(--paper-line);
+  padding: 0.85rem 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--slate-soft);
+  flex-wrap: wrap;
+}
+.crumbSep {
+  color: var(--paper-line-2);
+}
+.crumbHere {
+  color: var(--navy);
+  font-weight: 500;
+}
+.crumbLink {
+  color: var(--slate-soft);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.crumbLink:hover {
+  color: var(--navy);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.qsearch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.75rem 0.45rem 0.65rem;
+  border: 1px solid var(--paper-line-2);
+  border-radius: 5px;
+  background: var(--ink-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--slate-soft);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  min-width: 220px;
+  text-decoration: none;
+}
+.qsearch:hover {
+  border-color: var(--navy);
+}
+.qsearchKbd {
+  border: 1px solid var(--paper-line);
+  background: var(--paper-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.66rem;
+  color: var(--navy);
+  font-weight: 500;
+  margin-left: auto;
+}
+
+.btnFill {
+  background: var(--navy);
+  color: var(--paper);
+  border: 1px solid var(--navy);
+  padding: 0.5rem 0.95rem;
+  font-weight: 500;
+  font-size: 0.82rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-sans);
+  text-decoration: none;
+}
+.btnFill:hover {
+  background: var(--navy-2);
+}
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  border: 1px solid var(--paper-line-2);
+  background: var(--ink-2);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--slate);
+  position: relative;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.iconBtn:hover {
+  border-color: var(--navy);
+  color: var(--navy);
+}
+.iconBtnDot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 1.5px solid var(--ink-2);
+}
+
+/* ===== Page area ===== */
+.page {
+  padding: 1.5rem 1.75rem 2.5rem;
+  flex: 1;
+}
+
+/* Override existing global page styles when nested inside shell so the
+   wrapper sections don't double-pad or double-border. */
+.page :global(.dashboard),
+.page :global(.scan-flow),
+.page :global(.mfa-main) {
+  padding: 0;
+  border-bottom: 0;
+}
+.page :global(.mfa-hero) {
+  padding: 0 0 1rem;
+}
+.page :global(.mfa-card-section) {
+  padding: 0;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1100px) {
+  .shell {
+    grid-template-columns: 64px 1fr;
+  }
+  .side {
+    padding: 1rem 0.5rem;
+  }
+  .brand {
+    justify-content: center;
+  }
+  .brandLockup,
+  .groupLabel,
+  .itemLabel,
+  .itemCount,
+  .itemBadge,
+  .userInfo,
+  .userChev {
+    display: none;
+  }
+  .item {
+    justify-content: center;
+    padding: 0.65rem;
+  }
+  .user {
+    justify-content: center;
+  }
+}
+@media (max-width: 720px) {
+  .topbar {
+    padding: 0.75rem 1rem;
+  }
+  .qsearch {
+    display: none;
+  }
+  .page {
+    padding: 1rem;
+  }
+}

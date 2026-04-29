@@ -20,6 +20,8 @@
     "sync:uk": "tsx scripts/sync-uk.ts",
     "sync:un": "tsx scripts/sync-un.ts",
     "sync:all": "npm run sync:ofac && npm run sync:eu && npm run sync:uk && npm run sync:un",
+    "admin:promote": "tsx scripts/admin-promote.ts",
+    "admin:create": "tsx scripts/admin-create.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

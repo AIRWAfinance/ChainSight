@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { Nav } from '@/components/Nav';
-import { Footer } from '@/components/Footer';
-import { FilmGrain } from '@/components/FilmGrain';
+import { AppShell } from '@/components/app-shell/AppShell';
 import { getAuthenticatedSession } from '@/lib/auth/session';
 import { getStorageBackend } from '@/lib/storage';
 import { MfaSettings } from './MfaSettings';
@@ -20,9 +18,13 @@ export default async function MfaSettingsPage() {
   const enabled = Boolean(totp?.verifiedAt);
 
   return (
-    <>
-      <FilmGrain />
-      <Nav />
+    <AppShell
+      crumbs={[
+        { label: 'Workspace' },
+        { label: 'Settings' },
+        { label: 'Two-factor' },
+      ]}
+    >
       <main className="mfa-main">
         <section className="mfa-hero">
           <div className="kicker">§ Settings · Two-factor</div>
@@ -45,7 +47,6 @@ export default async function MfaSettingsPage() {
           />
         </section>
       </main>
-      <Footer />
-    </>
+    </AppShell>
   );
 }

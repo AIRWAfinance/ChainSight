@@ -15,6 +15,7 @@ export async function GET() {
       user: {
         id: session.userId,
         email: session.email,
+        role: session.role,
         mfaEnabled: Boolean(totp?.verifiedAt),
         mfaPending: !session.mfa,
       },

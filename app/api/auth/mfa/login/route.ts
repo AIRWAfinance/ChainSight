@@ -83,7 +83,11 @@ export async function POST(req: Request) {
     );
   }
 
-  const token = await signSession(session.userId, session.email, { mfa: true });
+  // Carry the role forward (from MFA-pending JWT into the full session).
+  const token = await signSession(session.userId, session.email, {
+    mfa: true,
+    role: session.role,
+  });
   await setSessionCookie(token);
 
   await logLoginSuccess({
@@ -93,7 +97,13 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json(
-    { user: { id: session.userId, email: session.email } },
+    {
+      user: {
+        id: session.userId,
+        email: session.email,
+        role: session.role,
+      },
+    },
     { status: 200 },
   );
 }

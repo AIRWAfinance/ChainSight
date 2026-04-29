@@ -36,11 +36,14 @@ export interface WatchlistEntry {
   status: 'active' | 'paused';
 }
 
+export type UserRole = 'admin' | 'user';
+
 export interface UserRow {
   id: string;
   email: string;
   createdAt: string;
   totpEnabled?: boolean;
+  role: UserRole;
 }
 
 export interface UserTotpState {
@@ -84,4 +87,9 @@ export interface StorageBackend {
   getUserTotpState(userId: string): Promise<UserTotpState | null>;
   setUserTotpVerified(userId: string): Promise<void>;
   clearUserTotp(userId: string): Promise<void>;
+
+  // Admin
+  setUserRole(userId: string, role: UserRole): Promise<void>;
+  listUsers(limit?: number): Promise<UserRow[]>;
+  countUsers(): Promise<{ total: number; admins: number; mfaEnabled: number }>;
 }

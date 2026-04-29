@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ChainSight — App shell (Navy Bureau)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:        #FBFAF6;
+    --paper-soft:   #F4F1E8;
+    --paper-line:   #E8E4D8;
+    --paper-line-2: #D8D3C2;
+    --surface:      #FFFFFF;
+
+    --navy:         #0F2A4A;
+    --navy-2:       #1A3A5F;
+    --slate:        #4A5878;
+    --slate-soft:   #6B7C99;
+    --steel:        #C9D4E5;
+
+    --gold:         #C8A14B;
+    --gold-soft:    #E0C079;
+
+    --green-ok:     #1F4A36;
+    --green-bg:     #E8F0EA;
+    --amber:        #B07A1F;
+    --amber-bg:     #F5EBD6;
+    --orange:       #9B5520;
+    --orange-bg:    #F0DCC4;
+    --red:          #9B2D2D;
+    --red-bg:       #F4DDDD;
+
+    --sidebar-w: 248px;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: var(--paper); color: var(--navy);
+    font-family: 'Inter Tight', -apple-system, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100vh;
+  }
+  a { color: inherit; text-decoration: none; }
+  .mono  { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .serif { font-family: 'Fraunces', 'Times New Roman', serif; }
+
+  /* ===== Ticker ===== */
+  .ticker {
+    background: var(--navy); color: var(--steel);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+    padding: .5rem 1.25rem;
+    display: flex; gap: 2.25rem; align-items: center;
+    overflow: hidden; white-space: nowrap;
+  }
+  .ticker b { color: #fff; font-weight: 500; margin-right: .35rem; }
+  .ticker .live {
+    margin-left: auto; color: #6FCF97;
+    display: inline-flex; align-items: center; gap: .5rem;
+  }
+  .ticker .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #6FCF97;
+    animation: pulse 2.4s cubic-bezier(.4,0,.6,1) infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(111,207,151,.55); }
+    50%     { box-shadow: 0 0 0 5px rgba(111,207,151,0); }
+  }
+
+  /* ===== Layout ===== */
+  .shell {
+    display: grid;
+    grid-template-columns: var(--sidebar-w) 1fr;
+    min-height: calc(100vh - 33px);
+  }
+
+  /* ===== Sidebar ===== */
+  aside.side {
+    background: var(--paper-soft);
+    border-right: 1px solid var(--paper-line);
+    padding: 1.1rem .9rem 1rem;
+    display: flex; flex-direction: column; gap: 1.1rem;
+    position: sticky; top: 0;
+    height: calc(100vh - 33px);
+    overflow-y: auto;
+  }
+  .side .brand {
+    display: flex; align-items: center; gap: .65rem;
+    padding: 0 .35rem;
+  }
+  .side .brand .mark {
+    width: 22px; height: 22px; background: var(--navy);
+    display: grid; place-items: center;
+  }
+  .side .brand .mark::after {
+    content: ""; width: 8px; height: 8px; background: var(--gold);
+  }
+  .side .brand .lockup { display: flex; flex-direction: column; line-height: 1; }
+  .side .brand .logo {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.15rem;
+    letter-spacing: -.02em; color: var(--navy);
+  }
+  .side .brand .by {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .55rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--slate-soft); margin-top: .2rem;
+  }
+
+  .side .group { display: flex; flex-direction: column; gap: 1px; }
+  .side .group .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: .58rem;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--slate-soft);
+    padding: .35rem .65rem .55rem; font-weight: 500;
+  }
+  .side .item {
+    display: flex; align-items: center; gap: .65rem;
+    padding: .5rem .65rem; border-radius: 5px;
+    font-size: .85rem; color: var(--slate);
+    transition: background .15s ease, color .15s ease;
+  }
+  .side .item:hover { background: rgba(15,42,74,.045); color: var(--navy); }
+  .side .item.active {
+    background: rgba(15,42,74,.07); color: var(--navy); font-weight: 500;
+    box-shadow: inset 2px 0 0 var(--gold);
+  }
+  .side .item .ico {
+    width: 16px; height: 16px; flex-shrink: 0;
+    color: currentColor; opacity: .75;
+  }
+  .side .item .ico svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.5; }
+  .side .item .count {
+    margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    color: var(--slate-soft); font-weight: 400;
+  }
+  .side .item.active .count { color: var(--navy); }
+  .side .item .badge {
+    margin-left: auto; background: var(--gold); color: var(--navy);
+    font-size: .62rem; font-weight: 600;
+    padding: 1px 7px; border-radius: 999px;
+    font-family: 'Inter Tight', sans-serif; letter-spacing: .02em;
+  }
+
+  .side hr { border: 0; border-top: 1px solid var(--paper-line); margin: 0; }
+
+  .side .footer {
+    margin-top: auto;
+    display: flex; flex-direction: column; gap: .35rem;
+  }
+  .side .user {
+    display: flex; align-items: center; gap: .65rem;
+    padding: .55rem .65rem; border-radius: 5px;
+    cursor: pointer;
+    transition: background .15s ease;
+  }
+  .side .user:hover { background: rgba(15,42,74,.045); }
+  .side .user .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--navy); color: var(--paper);
+    display: grid; place-items: center;
+    font-size: .72rem; font-weight: 500;
+    flex-shrink: 0;
+  }
+  .side .user .info { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+  .side .user .info .name { font-size: .82rem; font-weight: 500; color: var(--navy); }
+  .side .user .info .ws {
+    font-size: .68rem; color: var(--slate-soft);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .side .user .chev { margin-left: auto; color: var(--slate-soft); }
+
+  /* ===== Main ===== */
+  main.content { min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    background: var(--paper);
+    border-bottom: 1px solid var(--paper-line);
+    padding: .85rem 1.75rem;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1.5rem;
+    position: sticky; top: 0; z-index: 5;
+  }
+  .crumbs {
+    display: flex; align-items: center; gap: .55rem;
+    font-size: .82rem; color: var(--slate-soft);
+  }
+  .crumbs .sep { color: var(--paper-line-2); }
+  .crumbs .here { color: var(--navy); font-weight: 500; }
+  .topbar .actions { display: flex; align-items: center; gap: .65rem; }
+  .qsearch {
+    display: inline-flex; align-items: center; gap: .55rem;
+    padding: .45rem .75rem .45rem .65rem;
+    border: 1px solid var(--paper-line-2); border-radius: 5px;
+    background: var(--surface);
+    font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+    color: var(--slate-soft); cursor: pointer;
+    transition: border-color .15s ease;
+  }
+  .qsearch:hover { border-color: var(--navy); }
+  .qsearch .kbd {
+    border: 1px solid var(--paper-line); background: var(--paper-soft);
+    padding: 1px 5px; border-radius: 3px; font-size: .66rem;
+    color: var(--navy); font-weight: 500;
+  }
+  .btn-fill {
+    background: var(--navy); color: var(--paper); border: 1px solid var(--navy);
+    padding: .5rem .95rem; font-weight: 500; font-size: .82rem;
+    border-radius: 5px; cursor: pointer;
+    transition: background .2s ease;
+    display: inline-flex; align-items: center; gap: .4rem;
+  }
+  .btn-fill:hover { background: var(--navy-2); }
+  .btn-line {
+    border: 1px solid var(--paper-line-2); border-radius: 5px;
+    padding: .5rem .95rem; font-size: .82rem; color: var(--navy);
+    background: var(--surface);
+    cursor: pointer; transition: all .2s ease;
+    display: inline-flex; align-items: center; gap: .4rem;
+  }
+  .btn-line:hover { border-color: var(--navy); }
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 5px;
+    border: 1px solid var(--paper-line-2); background: var(--surface);
+    display: grid; place-items: center; cursor: pointer;
+    color: var(--slate); position: relative;
+  }
+  .icon-btn:hover { border-color: var(--navy); color: var(--navy); }
+  .icon-btn .dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--gold); border: 1.5px solid var(--surface);
+  }
+
+  /* ===== Page ===== */
+  .page { padding: 1.5rem 1.75rem 2.5rem; flex: 1; }
+
+  .page-head {
+    display: flex; justify-content: space-between; align-items: end;
+    gap: 2rem; margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem; border-bottom: 1px solid var(--paper-line);
+  }
+  .page-head .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--slate-soft); display: inline-flex; align-items: center; gap: .65rem;
+  }
+  .page-head .kicker::before {
+    content: ""; width: 22px; height: 1px; background: var(--gold);
+  }
+  .page-head h1 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(1.7rem, 1rem + 1.6vw, 2.4rem);
+    letter-spacing: -.02em; line-height: 1.05;
+    margin: .65rem 0 .25rem; color: var(--navy);
+  }
+  .page-head h1 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .page-head .sub { color: var(--slate); font-size: .92rem; margin: 0; }
+  .page-head .filters { display: inline-flex; gap: .4rem; align-items: center; }
+  .pill {
+    padding: .35rem .7rem; font-size: .72rem;
+    border: 1px solid var(--paper-line-2); border-radius: 999px;
+    color: var(--slate); background: var(--surface);
+    font-family: 'JetBrains Mono', monospace; letter-spacing: .04em;
+  }
+  .pill.active { background: var(--navy); color: var(--paper); border-color: var(--navy); }
+
+  /* ===== Stats ===== */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: .85rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat {
+    background: var(--surface); border: 1px solid var(--paper-line);
+    padding: 1rem 1.1rem; border-radius: 5px;
+    position: relative;
+  }
+  .stat .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: .62rem;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--slate-soft);
+    font-weight: 500;
+  }
+  .stat .val {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 2.1rem; line-height: 1; letter-spacing: -.03em;
+    color: var(--navy); margin-top: .55rem;
+  }
+  .stat .val .unit { color: var(--gold); font-size: .9rem; margin-left: .15rem; }
+  .stat .delta {
+    margin-top: .65rem; font-size: .72rem; color: var(--slate);
+    display: inline-flex; align-items: center; gap: .35rem;
+  }
+  .stat .delta b { font-family: 'JetBrains Mono', monospace; }
+  .stat .delta.up b { color: var(--green-ok); }
+  .stat .delta.down b { color: var(--red); }
+
+  /* ===== Quick scan ===== */
+  .qscan {
+    background: var(--surface); border: 1px solid var(--paper-line-2);
+    border-radius: 5px; margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .qscan .hdr {
+    padding: .7rem 1rem; border-bottom: 1px solid var(--paper-line);
+    background: var(--paper-soft);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace; font-size: .66rem;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--slate-soft);
+  }
+  .qscan .hdr .live { color: var(--green-ok); display: inline-flex; align-items: center; gap: .45rem; }
+  .qscan .hdr .live::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green-ok);
+  }
+  .qscan .row {
+    display: grid; grid-template-columns: 130px 1fr auto;
+    align-items: stretch;
+  }
+  .qscan .chain {
+    padding: .9rem 1rem; border-right: 1px solid var(--paper-line);
+    display: flex; flex-direction: column; gap: .25rem; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: .8rem;
+  }
+  .qscan .chain .lbl { font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; color: var(--slate-soft); }
+  .qscan .chain .v { color: var(--navy); font-weight: 500; }
+  .qscan input {
+    border: 0; padding: 1rem 1.1rem; font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem; background: transparent; color: var(--navy); outline: none;
+  }
+  .qscan input::placeholder { color: var(--slate-soft); }
+  .qscan button {
+    border: 0; background: var(--navy); color: var(--paper);
+    padding: 0 1.5rem; font-family: 'Inter Tight', sans-serif;
+    font-weight: 500; font-size: .9rem; cursor: pointer;
+    display: inline-flex; align-items: center; gap: .55rem;
+    transition: background .2s ease;
+  }
+  .qscan button:hover { background: var(--navy-2); }
+
+  /* ===== Two column ===== */
+  .columns { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 1.5rem; }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--paper-line);
+    border-radius: 5px; overflow: hidden;
+  }
+  .panel .phdr {
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--paper-line);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .panel .phdr .ttl {
+    font-family: 'Fraunces', serif; font-size: 1.1rem; font-weight: 500;
+    color: var(--navy); letter-spacing: -.01em;
+  }
+  .panel .phdr .ttl em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .panel .phdr .right { display: flex; gap: .65rem; align-items: center; }
+  .panel .phdr .link {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--slate);
+    border-bottom: 1px dashed var(--paper-line-2); padding-bottom: 1px;
+  }
+  .panel .phdr .link:hover { color: var(--navy); border-bottom-color: var(--navy); }
+
+  /* ===== Scans table ===== */
+  table.scans { width: 100%; border-collapse: collapse; }
+  table.scans thead th {
+    text-align: left; padding: .55rem 1.1rem .55rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .6rem;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--slate-soft);
+    background: var(--paper-soft); font-weight: 500;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  table.scans tbody td {
+    padding: .8rem 1.1rem;
+    border-bottom: 1px solid var(--paper-line);
+    font-size: .85rem; color: var(--slate);
+    vertical-align: middle;
+  }
+  table.scans tbody tr:last-child td { border-bottom: 0; }
+  table.scans tbody tr { transition: background .12s ease; }
+  table.scans tbody tr:hover { background: var(--paper-soft); cursor: pointer; }
+  table.scans .addr {
+    font-family: 'JetBrains Mono', monospace; color: var(--navy);
+    font-size: .82rem;
+  }
+  table.scans .addr-tag {
+    display: inline-block;
+    margin-left: .55rem; padding: 1px 6px;
+    background: var(--green-bg); color: var(--green-ok);
+    font-size: .62rem; font-weight: 500;
+    border-radius: 3px; vertical-align: middle;
+  }
+  table.scans .when { color: var(--slate-soft); font-size: .78rem; }
+  table.scans .score {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500; color: var(--navy); font-size: .9rem;
+  }
+  .badge {
+    display: inline-block; padding: 2px 8px;
+    font-size: .68rem; font-weight: 500; border-radius: 3px;
+    font-family: 'Inter Tight', sans-serif; letter-spacing: .03em;
+  }
+  .b-low  { background: var(--green-bg);  color: var(--green-ok); }
+  .b-med  { background: var(--amber-bg);  color: var(--amber); }
+  .b-high { background: var(--orange-bg); color: var(--orange); }
+  .b-crit { background: var(--red-bg);    color: var(--red); }
+  .chain-tag {
+    display: inline-flex; align-items: center; gap: .35rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .7rem;
+    color: var(--slate); padding: 1px 6px;
+    border: 1px solid var(--paper-line-2); border-radius: 3px;
+  }
+  .chain-tag .dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--navy);
+  }
+  table.scans .arr { color: var(--gold); font-family: 'JetBrains Mono', monospace; }
+
+  /* ===== Alerts panel ===== */
+  .alerts .alert {
+    padding: .85rem 1.1rem;
+    border-bottom: 1px solid var(--paper-line);
+    display: grid; grid-template-columns: auto 1fr; gap: .75rem;
+  }
+  .alerts .alert:last-child { border-bottom: 0; }
+  .alerts .alert .pip {
+    width: 8px; height: 8px; border-radius: 50%;
+    margin-top: .45rem;
+  }
+  .alerts .alert.med  .pip { background: var(--amber); }
+  .alerts .alert.high .pip { background: var(--orange); }
+  .alerts .alert.crit .pip { background: var(--red); }
+  .alerts .alert .body { min-width: 0; }
+  .alerts .alert .ttl {
+    font-size: .85rem; color: var(--navy); font-weight: 500;
+    margin: 0 0 .25rem;
+  }
+  .alerts .alert .meta {
+    display: flex; gap: .65rem; font-size: .72rem; color: var(--slate-soft);
+    font-family: 'JetBrains Mono', monospace; letter-spacing: .04em;
+  }
+  .alerts .alert .meta .addr { color: var(--slate); }
+  .alerts .alert .desc { color: var(--slate); font-size: .8rem; margin: .35rem 0 0; line-height: 1.5; }
+  .alerts .footer-row {
+    padding: .75rem 1.1rem; background: var(--paper-soft);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--navy);
+    border-top: 1px solid var(--paper-line);
+    cursor: pointer;
+  }
+  .alerts .footer-row:hover { background: var(--paper-line); }
+
+  /* ===== Coverage panel ===== */
+  .coverage { padding: 1rem 1.1rem; }
+  .coverage .row {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: .55rem 0;
+    border-bottom: 1px solid var(--paper-line);
+    font-size: .82rem;
+    gap: 1rem;
+  }
+  .coverage .row:last-child { border-bottom: 0; }
+  .coverage .row .label { color: var(--slate); }
+  .coverage .row .src {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    color: var(--slate-soft); letter-spacing: .04em;
+  }
+  .coverage .row .stat {
+    font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+    color: var(--green-ok); display: inline-flex; align-items: center; gap: .35rem;
+  }
+  .coverage .row .stat::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green-ok);
+  }
+  .coverage .row .stat.warn { color: var(--amber); }
+  .coverage .row .stat.warn::before { background: var(--amber); }
+
+  /* ===== Activity strip footer ===== */
+  .activity {
+    padding: 1rem 1.1rem;
+    border-top: 1px solid var(--paper-line);
+    background: var(--paper-soft);
+    font-family: 'JetBrains Mono', monospace; font-size: .7rem;
+    color: var(--slate-soft); letter-spacing: .08em;
+    display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: space-between;
+  }
+  .activity b { color: var(--navy); font-weight: 500; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1100px) {
+    :root { --sidebar-w: 64px; }
+    .side .group .lbl, .side .item span:not(.ico):not(.count):not(.badge), .side .brand .lockup, .side .user .info, .side .user .chev { display: none; }
+    .side .item { justify-content: center; padding: .65rem; }
+    .side .brand { justify-content: center; }
+    .side .item .badge, .side .item .count { display: none; }
+    .columns { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .topbar { padding: .75rem 1rem; }
+    .qsearch { display: none; }
+    .page { padding: 1rem; }
+    .qscan .row { grid-template-columns: 1fr; }
+    .qscan .chain { border-right: 0; border-bottom: 1px solid var(--paper-line); }
+    .qscan button { padding: 1rem; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Ticker -->
+<div class="ticker">
+  <span><b>OFAC SDN</b>last sync 04-29 04:12 UTC</span>
+  <span><b>FATF VA RFI</b>14 indicators</span>
+  <span><b>CHAINS</b>ETH POL BSC ARB BASE OP</span>
+  <span><b>TYPOLOGIES</b>7 active</span>
+  <span class="live"><span class="pulse"></span>Engine online &middot; v0.6.0</span>
+</div>
+
+<div class="shell">
+
+  <!-- ===== Sidebar ===== -->
+  <aside class="side">
+    <div class="brand">
+      <span class="mark"></span>
+      <span class="lockup">
+        <span class="logo">ChainSight</span>
+        <span class="by">Bureau of AML intel</span>
+      </span>
+    </div>
+
+    <div class="group">
+      <div class="lbl">Workspace</div>
+      <a class="item active" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M3 12 12 4l9 8M5 10v10h14V10"/></svg></span>
+        <span>Dashboard</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></span>
+        <span>New scan</span>
+        <span class="count">⌘N</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6M9 9h2"/></svg></span>
+        <span>Reports</span>
+        <span class="count">231</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <span>Watchlist</span>
+        <span class="count">18</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg></span>
+        <span>Alerts</span>
+        <span class="badge">3</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M9 11V7a3 3 0 0 1 6 0v4M5 11h14v10H5z"/></svg></span>
+        <span>SAR queue</span>
+        <span class="count">2</span>
+      </a>
+    </div>
+
+    <hr/>
+
+    <div class="group">
+      <div class="lbl">Reference</div>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></span>
+        <span>Methodology</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
+        <span>Typologies</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+        <span>API docs</span>
+      </a>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6Z"/></svg></span>
+        <span>Trust &amp; sources</span>
+      </a>
+    </div>
+
+    <div class="footer">
+      <hr/>
+      <a class="item" href="#">
+        <span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+        <span>Settings</span>
+      </a>
+      <div class="user" title="Switch workspace">
+        <div class="avatar">JF</div>
+        <div class="info">
+          <span class="name">Jorge F&middot;</span>
+          <span class="ws">AIRWA Finance</span>
+        </div>
+        <span class="chev">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Main ===== -->
+  <main class="content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div class="crumbs">
+        <span>Workspace</span>
+        <span class="sep">/</span>
+        <span class="here">Dashboard</span>
+      </div>
+      <div class="actions">
+        <span class="qsearch">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Quick scan or jump to&hellip;</span>
+          <span class="kbd">&#8984;K</span>
+        </span>
+        <button class="icon-btn" aria-label="Notifications" title="Notifications">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/></svg>
+          <span class="dot"></span>
+        </button>
+        <button class="btn-fill">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          New scan
+        </button>
+      </div>
+    </div>
+
+    <!-- Page -->
+    <div class="page">
+
+      <!-- Page head -->
+      <div class="page-head">
+        <div>
+          <span class="kicker">Workspace overview</span>
+          <h1>Good morning, <em>Jorge.</em></h1>
+          <p class="sub">3 alerts pending review &middot; 2 SARs awaiting filing &middot; OFAC SDN refreshed 4 hours ago.</p>
+        </div>
+        <div class="filters">
+          <span class="pill">Today</span>
+          <span class="pill">7d</span>
+          <span class="pill active">30d</span>
+          <span class="pill">90d</span>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="stat">
+          <div class="lbl">SCANS &middot; 30D</div>
+          <div class="val">231</div>
+          <div class="delta up"><b>&uarr; 18%</b><span>vs prior period</span></div>
+        </div>
+        <div class="stat">
+          <div class="lbl">FLAGGED</div>
+          <div class="val">14<span class="unit">/231</span></div>
+          <div class="delta up"><b>6.06%</b><span>flag rate</span></div>
+        </div>
+        <div class="stat">
+          <div class="lbl">AVG SCORE</div>
+          <div class="val">22</div>
+          <div class="delta down"><b>&darr; 4 pts</b><span>vs prior period</span></div>
+        </div>
+        <div class="stat">
+          <div class="lbl">SAR QUEUE</div>
+          <div class="val">2</div>
+          <div class="delta"><b style="color:var(--amber);">2 pending</b><span>oldest 3d</span></div>
+        </div>
+      </div>
+
+      <!-- Quick scan -->
+      <form class="qscan" onsubmit="event.preventDefault()">
+        <div class="hdr">
+          <span>Quick scan &middot; chainsight :: scan</span>
+          <span class="live">Engine ready &middot; ~6s</span>
+        </div>
+        <div class="row">
+          <div class="chain">
+            <span class="lbl">Chain</span>
+            <span class="v">&#x2B22; Ethereum</span>
+          </div>
+          <input placeholder="Paste a wallet address &mdash; 0x&hellip;" />
+          <button type="submit">
+            Generate report
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </form>
+
+      <!-- Two column -->
+      <div class="columns">
+
+        <!-- Recent scans -->
+        <div class="panel">
+          <div class="phdr">
+            <span class="ttl">Recent <em>scans</em></span>
+            <div class="right">
+              <a class="link" href="#">View all 231 &rarr;</a>
+            </div>
+          </div>
+          <table class="scans">
+            <thead>
+              <tr>
+                <th>Wallet</th>
+                <th>Chain</th>
+                <th>Score</th>
+                <th>Verdict</th>
+                <th>When</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="addr">0x6495&hellip;a0b4</span><span class="addr-tag">Kraken</span></td>
+                <td><span class="chain-tag"><span class="dot"></span>ETH</span></td>
+                <td><span class="score">15</span></td>
+                <td><span class="badge b-low">Low risk</span></td>
+                <td><span class="when">2h ago</span></td>
+                <td><span class="arr">&rarr;</span></td>
+              </tr>
+              <tr>
+                <td><span class="addr">0xab21&hellip;f8c0</span></td>
+                <td><span class="chain-tag"><span class="dot"></span>ETH</span></td>
+                <td><span class="score">42</span></td>
+                <td><span class="badge b-med">Standard DD</span></td>
+                <td><span class="when">5h ago</span></td>
+                <td><span class="arr">&rarr;</span></td>
+              </tr>
+              <tr>
+                <td><span class="addr">0xd9ef&hellip;1102</span></td>
+                <td><span class="chain-tag"><span class="dot" style="background:#8247E5"></span>POL</span></td>
+                <td><span class="score">68</span></td>
+                <td><span class="badge b-high">Enhanced DD</span></td>
+                <td><span class="when">yesterday</span></td>
+                <td><span class="arr">&rarr;</span></td>
+              </tr>
+              <tr>
+                <td><span class="addr">0x71fa&hellip;3300</span></td>
+                <td><span class="chain-tag"><span class="dot" style="background:#F3BA2F"></span>BSC</span></td>
+                <td><span class="score">81</span></td>
+                <td><span class="badge b-crit">Block / SAR</span></td>
+                <td><span class="when">yesterday</span></td>
+                <td><span class="arr">&rarr;</span></td>
+              </tr>
+              <tr>
+                <td><span class="addr">0xbe10&hellip;ee2a</span><span class="addr-tag">Binance 14</span></td>
+                <td><span class="chain-tag"><span class="dot"></span>ETH</span></td>
+                <td><span class="score">8</span></td>
+                <td><span class="badge b-low">Low risk</span></td>
+                <td><span class="when">2d ago</span></td>
+                <td><span class="arr">&rarr;</span></td>
+              </tr>
+              <tr>
+                <td><span class="addr">0x4f02&hellip;0c1f</span></td>
+                <td><span class="chain-tag"><span class="dot" style="background:#28A0F0"></span>ARB</span></td>
+                <td><span class="score">31</span></td>
+                <td><span class="badge b-med">Standard DD</span></td>
+                <td><span class="when">3d ago</span></td>
+                <td><span class="arr">&rarr;</span></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="activity">
+            <span><b>231</b> SCANS &middot; <b>14</b> FLAGGED &middot; <b>2</b> CRITICAL THIS WEEK</span>
+            <span><b>EXPORT</b> &middot; CSV &middot; JSON &middot; PDF</span>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+
+          <!-- Alerts -->
+          <div class="panel alerts">
+            <div class="phdr">
+              <span class="ttl">Active <em>alerts</em></span>
+              <span class="badge b-med" style="font-family: 'JetBrains Mono', monospace; font-size: .65rem; letter-spacing: .1em;">3 OPEN</span>
+            </div>
+            <div class="alert crit">
+              <span class="pip"></span>
+              <div class="body">
+                <p class="ttl">Sanctions hit &middot; OFAC SDN match</p>
+                <div class="meta"><span class="addr">0x71fa&hellip;3300</span><span>BSC</span><span>3h ago</span></div>
+                <p class="desc">Counterparty matches OFAC SDN entry "LAZARUS GROUP". Score 81. Recommended action: block &amp; file SAR.</p>
+              </div>
+            </div>
+            <div class="alert high">
+              <span class="pip"></span>
+              <div class="body">
+                <p class="ttl">Mixer exposure &middot; Tornado Cash</p>
+                <div class="meta"><span class="addr">0xd9ef&hellip;1102</span><span>POL</span><span>yesterday</span></div>
+                <p class="desc">Direct withdrawal from Tornado Cash 10 ETH pool. Value-weighted severity: 0.62.</p>
+              </div>
+            </div>
+            <div class="alert med">
+              <span class="pip"></span>
+              <div class="body">
+                <p class="ttl">Layering pattern &middot; Pass-through</p>
+                <div class="meta"><span class="addr">0x6495&hellip;a0b4</span><span>ETH</span><span>2h ago</span></div>
+                <p class="desc">5 inbound flows forwarded out within 60min in near-identical amounts. Total 39.56 ETH.</p>
+              </div>
+            </div>
+            <div class="footer-row">View alerts page &rarr;</div>
+          </div>
+
+          <!-- Coverage -->
+          <div class="panel">
+            <div class="phdr">
+              <span class="ttl">Source <em>freshness</em></span>
+              <a class="link" href="#">Methodology &rarr;</a>
+            </div>
+            <div class="coverage">
+              <div class="row">
+                <div>
+                  <div class="label">OFAC SDN List</div>
+                  <div class="src">daily &middot; treasury.gov</div>
+                </div>
+                <span class="stat">4h ago</span>
+              </div>
+              <div class="row">
+                <div>
+                  <div class="label">FATF VA RFI 2020</div>
+                  <div class="src">14 indicators &middot; static</div>
+                </div>
+                <span class="stat">v2020.09</span>
+              </div>
+              <div class="row">
+                <div>
+                  <div class="label">EU Consolidated Sanctions</div>
+                  <div class="src">weekly &middot; europa.eu</div>
+                </div>
+                <span class="stat">2d ago</span>
+              </div>
+              <div class="row">
+                <div>
+                  <div class="label">UK HMT Sanctions</div>
+                  <div class="src">weekly &middot; gov.uk</div>
+                </div>
+                <span class="stat warn">7d ago</span>
+              </div>
+              <div class="row">
+                <div>
+                  <div class="label">Etherscan v2 API</div>
+                  <div class="src">on-demand &middot; etherscan.io</div>
+                </div>
+                <span class="stat">live</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+</body>
+</html>

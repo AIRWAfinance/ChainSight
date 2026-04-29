@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { authenticateUser } from '@/lib/auth/users';
 import { signSession, setSessionCookie } from '@/lib/auth/session';
 import { checkRateLimit, clientKey } from '@/lib/auth/rate-limit';
+import { ensureAdminFromAllowlist } from '@/lib/auth/admin';
 import {
   clientIpFrom,
   logLoginFail,
@@ -65,10 +66,16 @@ export async function POST(req: Request) {
     );
   }
 
+  // Auto-promote to admin if email is on the env allowlist.
+  const role = await ensureAdminFromAllowlist(user.id, user.email, user.role);
+
   // If the user has TOTP enrolled, issue an MFA-pending cookie and instruct
   // the client to call /api/auth/mfa/login with the TOTP code.
   if (user.totpEnabled) {
-    const pendingToken = await signSession(user.id, user.email, { mfa: false });
+    const pendingToken = await signSession(user.id, user.email, {
+      mfa: false,
+      role,
+    });
     await setSessionCookie(pendingToken);
     return NextResponse.json(
       {
@@ -79,7 +86,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const token = await signSession(user.id, user.email, { mfa: true });
+  const token = await signSession(user.id, user.email, { mfa: true, role });
   await setSessionCookie(token);
   await logLoginSuccess({
     actorIp: ip,
@@ -87,7 +94,7 @@ export async function POST(req: Request) {
     email: user.email,
   });
   return NextResponse.json(
-    { user: { id: user.id, email: user.email } },
+    { user: { id: user.id, email: user.email, role } },
     { status: 200 },
   );
 }

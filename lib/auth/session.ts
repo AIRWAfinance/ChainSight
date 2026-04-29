@@ -15,6 +15,8 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
+export type SessionRole = 'admin' | 'user';
+
 export interface Session {
   userId: string;
   email: string;
@@ -24,6 +26,8 @@ export interface Session {
    * access only to the MFA-completion endpoint.
    */
   mfa: boolean;
+  /** RBAC role — 'admin' grants access to /admin and /api/admin/*. */
+  role: SessionRole;
   iat: number;
   exp: number;
 }
@@ -31,10 +35,11 @@ export interface Session {
 export async function signSession(
   userId: string,
   email: string,
-  opts: { mfa: boolean } = { mfa: true },
+  opts: { mfa: boolean; role?: SessionRole } = { mfa: true },
 ): Promise<string> {
   const ttl = opts.mfa ? SESSION_TTL : MFA_PENDING_TTL;
-  return await new SignJWT({ userId, email, mfa: opts.mfa })
+  const role: SessionRole = opts.role ?? 'user';
+  return await new SignJWT({ userId, email, mfa: opts.mfa, role })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(`${ttl}s`)
@@ -50,13 +55,15 @@ export async function verifySession(token: string): Promise<Session | null> {
       typeof payload.iat === 'number' &&
       typeof payload.exp === 'number'
     ) {
-      // mfa defaults to true for legacy tokens issued before this field existed.
       const mfa =
         typeof payload.mfa === 'boolean' ? payload.mfa : true;
+      const role: SessionRole =
+        payload.role === 'admin' ? 'admin' : 'user';
       return {
         userId: payload.userId,
         email: payload.email,
         mfa,
+        role,
         iat: payload.iat,
         exp: payload.exp,
       };
@@ -99,6 +106,12 @@ export async function getAuthenticatedSession(): Promise<Session | null> {
   if (!session) return null;
   if (!session.mfa) return null;
   return session;
+}
+
+export async function getAdminSession(): Promise<Session | null> {
+  const session = await getAuthenticatedSession();
+  if (!session) return null;
+  return session.role === 'admin' ? session : null;
 }
 
 export async function requireSession(): Promise<Session> {

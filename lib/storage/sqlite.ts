@@ -12,7 +12,7 @@ import type {
 } from './types.js';
 import type { AuditEvent, AuditFilter } from '../audit/types.js';
 import { hashPayload } from '../audit/hash.js';
-import type { UserTotpState } from './types.js';
+import type { UserTotpState, UserRole } from './types.js';
 
 interface AuditRow {
   id: string;
@@ -33,6 +33,7 @@ interface UserDbRow {
   created_at: string;
   totp_secret?: string | null;
   totp_verified_at?: string | null;
+  role?: string | null;
 }
 
 interface ScanRow {
@@ -79,7 +80,8 @@ export class SqliteStorage implements StorageBackend {
         password_hash TEXT NOT NULL,
         created_at TEXT NOT NULL,
         totp_secret TEXT,
-        totp_verified_at TEXT
+        totp_verified_at TEXT,
+        role TEXT NOT NULL DEFAULT 'user'
       );
 
       CREATE TABLE IF NOT EXISTS scans (
@@ -147,6 +149,11 @@ export class SqliteStorage implements StorageBackend {
       if (!userCols.some((c) => c.name === 'totp_verified_at')) {
         this.db.exec('ALTER TABLE users ADD COLUMN totp_verified_at TEXT');
       }
+      if (!userCols.some((c) => c.name === 'role')) {
+        this.db.exec(
+          `ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'`,
+        );
+      }
     }
   }
 
@@ -155,10 +162,10 @@ export class SqliteStorage implements StorageBackend {
     const createdAt = new Date().toISOString();
     this.db
       .prepare(
-        `INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)`,
+        `INSERT INTO users (id, email, password_hash, created_at, role) VALUES (?, ?, ?, ?, 'user')`,
       )
       .run(id, email, passwordHash, createdAt);
-    return { id, email, createdAt };
+    return { id, email, createdAt, role: 'user' };
   }
 
   async findUserByEmail(
@@ -174,6 +181,7 @@ export class SqliteStorage implements StorageBackend {
         email: row.email,
         createdAt: row.created_at,
         totpEnabled: Boolean(row.totp_verified_at),
+        role: (row.role as UserRole) ?? 'user',
       },
       passwordHash: row.password_hash,
     };
@@ -182,11 +190,12 @@ export class SqliteStorage implements StorageBackend {
   async findUserById(id: string): Promise<UserRow | null> {
     const row = this.db
       .prepare(
-        'SELECT id, email, created_at, totp_verified_at FROM users WHERE id = ?',
+        'SELECT id, email, created_at, totp_verified_at, role FROM users WHERE id = ?',
       )
       .get(id) as
       | (Pick<UserDbRow, 'id' | 'email' | 'created_at'> & {
           totp_verified_at?: string | null;
+          role?: string | null;
         })
       | undefined;
     if (!row) return null;
@@ -195,6 +204,7 @@ export class SqliteStorage implements StorageBackend {
       email: row.email,
       createdAt: row.created_at,
       totpEnabled: Boolean(row.totp_verified_at),
+      role: (row.role as UserRole) ?? 'user',
     };
   }
 
@@ -434,6 +444,55 @@ export class SqliteStorage implements StorageBackend {
         `UPDATE users SET totp_secret = NULL, totp_verified_at = NULL WHERE id = ?`,
       )
       .run(userId);
+  }
+
+  async setUserRole(userId: string, role: UserRole): Promise<void> {
+    this.db
+      .prepare('UPDATE users SET role = ? WHERE id = ?')
+      .run(role, userId);
+  }
+
+  async listUsers(limit: number = 200): Promise<UserRow[]> {
+    const rows = this.db
+      .prepare(
+        `SELECT id, email, created_at, totp_verified_at, role
+         FROM users ORDER BY created_at DESC LIMIT ?`,
+      )
+      .all(limit) as Array<{
+      id: string;
+      email: string;
+      created_at: string;
+      totp_verified_at: string | null;
+      role: string | null;
+    }>;
+    return rows.map((row) => ({
+      id: row.id,
+      email: row.email,
+      createdAt: row.created_at,
+      totpEnabled: Boolean(row.totp_verified_at),
+      role: (row.role as UserRole) ?? 'user',
+    }));
+  }
+
+  async countUsers(): Promise<{
+    total: number;
+    admins: number;
+    mfaEnabled: number;
+  }> {
+    const total = (
+      this.db.prepare('SELECT COUNT(*) AS c FROM users').get() as { c: number }
+    ).c;
+    const admins = (
+      this.db
+        .prepare(`SELECT COUNT(*) AS c FROM users WHERE role = 'admin'`)
+        .get() as { c: number }
+    ).c;
+    const mfaEnabled = (
+      this.db
+        .prepare(`SELECT COUNT(*) AS c FROM users WHERE totp_verified_at IS NOT NULL`)
+        .get() as { c: number }
+    ).c;
+    return { total, admins, mfaEnabled };
   }
 
   async listAudit(filter: AuditFilter = {}): Promise<AuditEvent[]> {

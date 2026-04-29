@@ -1,8 +1,5 @@
 import type { Metadata } from 'next';
-import { FilmGrain } from '@/components/FilmGrain';
-import { Ticker } from '@/components/Ticker';
-import { Nav } from '@/components/Nav';
-import { Footer } from '@/components/Footer';
+import { AppShell } from '@/components/app-shell/AppShell';
 import { ScanFlow } from './ScanFlow';
 
 export const metadata: Metadata = {
@@ -10,22 +7,24 @@ export const metadata: Metadata = {
   description: 'Paste an Ethereum address and receive an AML risk report.',
 };
 
-export default async function ScanPage({
-  searchParams,
-}: {
+interface ScanPageProps {
   searchParams: Promise<{ address?: string; chain?: string }>;
-}) {
+}
+
+export default async function ScanPage({ searchParams }: ScanPageProps) {
   const params = await searchParams;
   const address = typeof params.address === 'string' ? params.address : '';
   const chain = typeof params.chain === 'string' ? params.chain : 'ethereum';
 
   return (
-    <>
-      <FilmGrain />
-      <Ticker />
-      <Nav />
+    <AppShell
+      crumbs={[
+        { label: 'Workspace' },
+        { label: 'Dashboard', href: '/dashboard' },
+        { label: 'New scan' },
+      ]}
+    >
       <ScanFlow initialAddress={address} initialChain={chain} />
-      <Footer />
-    </>
+    </AppShell>
   );
 }
