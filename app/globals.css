@@ -1,30 +1,53 @@
 /* ===========================================================================
-   ChainSight — Editorial Fintech Design System
+   ChainSight — Navy Bureau Design System
+   Light, cream-paper background with navy ink + gold accents.
    --------------------------------------------------------------------------- */
 
 :root {
-  /* Paper-on-espresso palette */
-  --ink-0: #0a0807;
-  --ink-1: #14110d;
-  --ink-2: #1a1612;
-  --ink-3: #221d18;
-  --line: #2a2520;
-  --line-strong: #3a342c;
-  --paper: #ece7df;
-  --paper-dim: #b8ad99;
-  --paper-muted: #7a7062;
-  --gold: #d4a949;
-  --gold-soft: #e9c779;
-  --sand: #b8a98a;
-  --red: #d65645;
-  --teal: #5fa493;
-  --green: #87a96b;
+  /* === Navy Bureau palette === */
+  /* Surfaces (variables previously named --ink-* are now light cream tones
+     for backwards compatibility with existing component CSS that
+     references them as page / surface backgrounds.) */
+  --ink-0:        #FBFAF6;   /* page bg — warm cream */
+  --ink-1:        #F4F1E8;   /* secondary surface */
+  --ink-2:        #FFFFFF;   /* card surface */
+  --ink-3:        #EFEBDD;   /* slightly inset */
+  --line:         #E8E4D8;   /* hairline borders */
+  --line-strong:  #D8D3C2;   /* stronger borders */
 
-  /* Threshold colors */
-  --t-low: #5fa493;
-  --t-med: #d4a949;
-  --t-high: #cf6f3f;
-  --t-crit: #c5392b;
+  /* Inks (variables previously named --paper-* are now navy/slate tones —
+     primary text colour swaps from cream to deep navy.) */
+  --paper:        #0F2A4A;   /* primary ink — deep navy */
+  --paper-dim:    #4A5878;   /* body / secondary ink — slate */
+  --paper-muted:  #6B7C99;   /* muted ink — slate-soft */
+
+  /* Direct semantic aliases — match the mockup naming for new components. */
+  --navy:         #0F2A4A;
+  --navy-2:       #1A3A5F;
+  --slate:        #4A5878;
+  --slate-soft:   #6B7C99;
+  --steel:        #C9D4E5;   /* text on navy bg */
+  --paper-soft:   #F4F1E8;
+  --paper-line:   #E8E4D8;
+  --paper-line-2: #D8D3C2;
+
+  /* Accents */
+  --gold:         #C8A14B;
+  --gold-soft:    #E0C079;
+  --sand:         #B8A98A;
+
+  /* Status */
+  --red:          #9B2D2D;
+  --amber:        #B07A1F;
+  --teal:         #1F4A36;
+  --green:        #1F4A36;
+  --green-ok:     #1F4A36;
+
+  /* Threshold colors (verdict ladder, severity tags) */
+  --t-low:  #1F4A36;
+  --t-med:  #B07A1F;
+  --t-high: #9B5520;
+  --t-crit: #9B2D2D;
 
   /* Typography */
   --font-serif: 'Fraunces', 'Times New Roman', serif;
@@ -52,31 +75,31 @@ button { font-family: inherit; }
 .serif { font-family: var(--font-serif); font-feature-settings: "ss01"; }
 .serif-it { font-family: var(--font-serif); font-style: italic; }
 
-/* === Film grain overlay === */
+/* === Film grain overlay (paper texture) === */
 .film-grain {
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 100;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
-  mix-blend-mode: overlay;
-  opacity: 0.55;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.04 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+  mix-blend-mode: multiply;
+  opacity: 0.4;
 }
 
 /* === Common rules === */
 .kicker {
   font-family: var(--font-mono);
   font-size: 0.68rem;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--slate-soft);
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.8rem;
 }
 .kicker::before {
   content: "";
-  width: 28px;
+  width: 26px;
   height: 1px;
   background: var(--gold);
 }
@@ -94,17 +117,22 @@ button { font-family: inherit; }
   letter-spacing: 0.14em;
 }
 
-/* === Ticker === */
+/* === Ticker (navy band on cream page) === */
 .ticker {
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  background: var(--ink-1);
+  background: var(--navy);
+  border-bottom: 1px solid #1F3253;
   font-family: var(--font-mono);
   font-size: 0.7rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--paper-muted);
+  color: var(--steel);
   padding: 0.55rem 0;
+}
+.ticker-row span b {
+  color: #FFFFFF;
+}
+.ticker-row .live {
+  color: #6FCF97;
 }
 .ticker-row {
   display: flex;
@@ -144,17 +172,24 @@ button { font-family: inherit; }
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--ink-0) 0%, var(--ink-1) 100%);
+  background: var(--paper);
 }
 .brand { display: flex; align-items: baseline; gap: 0.85rem; }
 .brand-mark {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, var(--gold-soft), var(--gold) 50%, #8a6a1c 100%);
-  box-shadow: inset 0 -4px 6px rgba(0, 0, 0, 0.35), 0 0 0 1px var(--line-strong);
-  transform: translateY(6px);
+  width: 22px;
+  height: 22px;
+  background: var(--navy);
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  position: relative;
+  transform: translateY(4px);
+}
+.brand-mark::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background: var(--gold);
 }
 .brand-logo {
   font-family: var(--font-serif);
@@ -234,21 +269,31 @@ button { font-family: inherit; }
 
 /* === Masthead === */
 .mast {
-  padding: 6rem 2.25rem 3.5rem;
+  padding: 5.5rem 2.25rem 4rem;
   border-bottom: 1px solid var(--line);
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
-  gap: 5rem;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr);
+  gap: 4.5rem;
   position: relative;
 }
-.mast::after {
+/* Corner registration marks — bureau signature */
+.mast::before, .mast::after {
   content: "";
   position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--gold);
+  top: 1.75rem;
+}
+.mast::before {
   left: 2.25rem;
+  border-right: 0;
+  border-bottom: 0;
+}
+.mast::after {
   right: 2.25rem;
-  bottom: -1px;
-  height: 4px;
-  background: linear-gradient(90deg, var(--gold) 0%, var(--gold) 80px, transparent 80px);
+  border-left: 0;
+  border-bottom: 0;
 }
 .mast h1 {
   font-family: var(--font-serif);
@@ -263,7 +308,7 @@ button { font-family: inherit; }
   font-style: italic;
   color: var(--gold);
   font-weight: 500;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 .mast h1 .ampersand {
   font-style: italic;
@@ -430,7 +475,7 @@ button { font-family: inherit; }
 .scan-form {
   background: var(--ink-1);
   border: 1px solid var(--line-strong);
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  box-shadow: 0 24px 60px -30px rgba(15, 42, 74, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.6);
   overflow: hidden;
 }
 .scan-form-hdr {
@@ -566,7 +611,7 @@ button { font-family: inherit; }
   margin-top: 1rem;
   padding: 0.85rem 1.25rem;
   border-left: 2px solid var(--red);
-  background: rgba(214, 86, 69, 0.08);
+  background: rgba(155, 45, 45, 0.08);
   color: var(--paper);
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -856,8 +901,8 @@ button { font-family: inherit; }
 }
 .verdict-tag.crit {
   color: var(--red);
-  background: rgba(214, 86, 69, 0.12);
-  border-color: rgba(214, 86, 69, 0.25);
+  background: rgba(155, 45, 45, 0.12);
+  border-color: rgba(155, 45, 45, 0.25);
 }
 .verdict p {
   font-family: var(--font-serif);
@@ -917,7 +962,7 @@ button { font-family: inherit; }
   vertical-align: middle;
   box-shadow: 0 0 0 3px rgba(212, 169, 73, 0.12);
 }
-.finding .sev.critical .dot { box-shadow: 0 0 0 3px rgba(214, 86, 69, 0.18); }
+.finding .sev.critical .dot { box-shadow: 0 0 0 3px rgba(155, 45, 45, 0.18); }
 .finding .typ-tag {
   margin-top: 0.85rem;
   font-family: var(--font-mono);
@@ -988,7 +1033,7 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
 .entity-tag.entity-dex,
 .entity-tag.entity-dex_aggregator { background: rgba(135, 169, 107, 0.18); color: var(--green); border-color: rgba(135, 169, 107, 0.3); }
 .entity-tag.entity-bridge { background: rgba(184, 169, 138, 0.18); color: var(--sand); border-color: rgba(184, 169, 138, 0.3); }
-.entity-tag.entity-mixer { background: rgba(214, 86, 69, 0.16); color: var(--red); border-color: rgba(214, 86, 69, 0.3); }
+.entity-tag.entity-mixer { background: rgba(155, 45, 45, 0.16); color: var(--red); border-color: rgba(155, 45, 45, 0.3); }
 .entity-addr {
   color: var(--paper-muted);
   font-size: 0.74rem;
@@ -1100,9 +1145,9 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   border: 1px solid rgba(212, 169, 73, 0.3);
 }
 .dashboard table .score-pill.crit {
-  background: rgba(214, 86, 69, 0.15);
+  background: rgba(155, 45, 45, 0.15);
   color: var(--red);
-  border-color: rgba(214, 86, 69, 0.3);
+  border-color: rgba(155, 45, 45, 0.3);
 }
 .dashboard table .score-pill.high {
   background: rgba(207, 111, 63, 0.15);
@@ -1160,7 +1205,7 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   padding: 2.5rem 2.25rem;
   background: var(--ink-1);
   border: 1px solid var(--line-strong);
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 24px 60px -30px rgba(15, 42, 74, 0.12);
 }
 .auth-card h1 {
   font-family: var(--font-serif);
@@ -1300,7 +1345,7 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   background: var(--ink-1);
   border: 1px solid var(--line-strong);
   padding: 2.5rem 2.25rem;
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 24px 60px -30px rgba(15, 42, 74, 0.12);
 }
 .beta-form-card h2 {
   font-family: var(--font-serif);
@@ -1562,12 +1607,35 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   font-size: 1.2rem;
 }
 
-/* === Final CTA === */
+/* === Final CTA — inverted navy band === */
 .section-cta {
-  padding: 6.5rem 2.25rem;
+  padding: 6rem 2.25rem;
   text-align: center;
-  background: radial-gradient(ellipse at 50% 0%, rgba(212, 169, 73, 0.1) 0%, transparent 60%), var(--ink-0);
+  background: var(--navy);
+  color: var(--paper-soft);
+  position: relative;
+  border-top: 1px solid var(--line);
 }
+.section-cta::before, .section-cta::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--gold);
+  top: 1.75rem;
+  left: 2.25rem;
+  border-right: 0;
+  border-bottom: 0;
+}
+.section-cta::after {
+  left: auto;
+  right: 2.25rem;
+  border: 1px solid var(--gold);
+  border-left: 0;
+  border-bottom: 0;
+}
+.section-cta .kicker { color: var(--steel); }
+.section-cta .kicker::before { background: var(--gold); }
 .section-cta h2 {
   font-family: var(--font-serif);
   font-weight: 500;
@@ -1576,13 +1644,14 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   margin: 1.25rem auto 1.5rem;
   max-width: 18ch;
   line-height: 1.02;
+  color: #FBFAF6;
 }
 .section-cta h2 em { font-style: italic; color: var(--gold); font-weight: 500; }
 .section-cta p {
-  color: var(--paper-dim);
+  color: var(--steel);
   max-width: 52ch;
   margin: 0 auto 2.5rem;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 .cta-actions { display: inline-flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
 
@@ -1912,8 +1981,8 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
   width: 6px; height: 6px; border-radius: 50%; background: var(--green);
 }
 .freshness-bar.stale {
-  background: rgba(214, 86, 69, 0.08);
-  border-bottom-color: rgba(214, 86, 69, 0.4);
+  background: rgba(155, 45, 45, 0.08);
+  border-bottom-color: rgba(155, 45, 45, 0.4);
   color: var(--red);
 }
 .freshness-bar.stale .dot {

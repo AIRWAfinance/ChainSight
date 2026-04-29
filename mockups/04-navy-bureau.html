@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>ChainSight — Navy Bureau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* === Navy Bureau palette === */
+    --paper:        #FBFAF6;   /* warm cream page bg */
+    --paper-soft:   #F4F1E8;   /* secondary surface */
+    --paper-line:   #E8E4D8;   /* hairline borders */
+    --paper-line-2: #D8D3C2;   /* stronger borders */
+
+    --navy:         #0F2A4A;   /* primary ink */
+    --navy-2:       #1A3A5F;   /* hover/secondary */
+    --slate:        #4A5878;   /* body text */
+    --slate-soft:   #6B7C99;   /* muted text */
+    --steel:        #C9D4E5;   /* navy-bg text */
+
+    --gold:         #C8A14B;   /* minimal accent */
+    --gold-soft:    #E0C079;   /* hover gold */
+
+    --green-ok:     #1F4A36;   /* "online" indicator */
+    --amber:        #B07A1F;   /* medium severity */
+    --red:          #9B2D2D;   /* critical */
+
+    /* Threshold colors */
+    --t-low:  #1F4A36;
+    --t-med:  #B07A1F;
+    --t-high: #9B5520;
+    --t-crit: #9B2D2D;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: var(--paper); color: var(--navy);
+    font-family: 'Inter Tight', -apple-system, system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; text-decoration: none; }
+  .mono   { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .serif  { font-family: 'Fraunces', 'Times New Roman', serif; }
+  .it     { font-style: italic; }
+
+  /* Common */
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .68rem; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--slate-soft);
+    display: inline-flex; align-items: center; gap: .8rem;
+  }
+  .kicker::before {
+    content: ""; width: 26px; height: 1px; background: var(--gold);
+  }
+
+  /* === Ticker === */
+  .ticker {
+    background: var(--navy); color: var(--steel);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    padding: .55rem 0;
+    border-bottom: 1px solid #1F3253;
+  }
+  .ticker-row {
+    display: flex; gap: 2.75rem; padding: 0 2rem;
+    white-space: nowrap; overflow: hidden;
+  }
+  .ticker-row span { display: inline-flex; align-items: center; gap: .5rem; }
+  .ticker-row span b { color: #FFFFFF; font-weight: 500; letter-spacing: .12em; }
+  .ticker-row .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #6FCF97;
+    animation: pulse 2.4s cubic-bezier(.4,0,.6,1) infinite;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(111,207,151,.55); }
+    50%     { box-shadow: 0 0 0 5px rgba(111,207,151,0); }
+  }
+  .ticker-row .live { color: #6FCF97; }
+
+  /* === Top nav === */
+  nav.top {
+    padding: 1.1rem 2.25rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--paper-line);
+    background: var(--paper);
+  }
+  .brand { display: flex; align-items: center; gap: .9rem; }
+  .brand .mark {
+    width: 22px; height: 22px; background: var(--navy);
+    display: grid; place-items: center;
+  }
+  .brand .mark::after {
+    content: ""; width: 8px; height: 8px; background: var(--gold);
+  }
+  .brand .lockup { display: flex; flex-direction: column; line-height: 1; }
+  .brand .logo {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.25rem;
+    letter-spacing: -.02em; color: var(--navy);
+  }
+  .brand .by {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .58rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--slate-soft); margin-top: .25rem;
+  }
+  nav.top ul {
+    display: flex; gap: 2rem; list-style: none; padding: 0; margin: 0;
+    font-size: .9rem; color: var(--slate);
+  }
+  nav.top ul li a { transition: color .2s ease; }
+  nav.top ul li a:hover { color: var(--navy); }
+  nav.top .right { display: flex; align-items: center; gap: 1rem; }
+  .btn-line {
+    border: 1px solid var(--paper-line-2);
+    padding: .55rem 1.05rem; font-size: .82rem;
+    color: var(--navy);
+    transition: all .2s ease;
+  }
+  .btn-line:hover { border-color: var(--navy); }
+  .btn-fill {
+    background: var(--navy); color: var(--paper); border: 1px solid var(--navy);
+    padding: .58rem 1.1rem; font-weight: 500; font-size: .85rem;
+    transition: background .2s ease;
+  }
+  .btn-fill:hover { background: var(--navy-2); }
+
+  /* === Masthead === */
+  .mast {
+    padding: 5.5rem 2.25rem 4rem;
+    border-bottom: 1px solid var(--paper-line);
+    display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr); gap: 4.5rem;
+    position: relative;
+  }
+  /* Corner registration marks */
+  .mast::before, .mast::after {
+    content: ""; position: absolute; width: 14px; height: 14px;
+    border: 1px solid var(--gold); border-right: 0; border-bottom: 0;
+    top: 1.75rem; left: 2.25rem;
+  }
+  .mast::after {
+    left: auto; right: 2.25rem; top: 1.75rem;
+    border: 1px solid var(--gold); border-left: 0; border-bottom: 0;
+  }
+  .mast h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.6rem, 1rem + 5.2vw, 6rem);
+    line-height: .98; letter-spacing: -.03em;
+    margin: 1.25rem 0 0;
+    font-weight: 500;
+    color: var(--navy);
+  }
+  .mast h1 .light { color: var(--slate); font-weight: 400; }
+  .mast h1 em {
+    font-style: italic; color: var(--gold); font-weight: 500;
+  }
+  .mast .lede {
+    margin: 2.25rem 0 0; max-width: 56ch;
+    font-size: 1.08rem; line-height: 1.65; color: var(--slate);
+  }
+  .mast .lede b { color: var(--navy); font-weight: 600; }
+  .mast .meta-row {
+    margin-top: 2.5rem; display: flex; gap: 2.25rem; flex-wrap: wrap;
+    font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+    letter-spacing: .12em; text-transform: uppercase; color: var(--slate-soft);
+    padding-top: 1.5rem; border-top: 1px solid var(--paper-line);
+  }
+  .mast .meta-row b { color: var(--navy); font-weight: 500; margin-right: .5rem; }
+
+  .mast aside {
+    border-left: 1px solid var(--paper-line); padding-left: 2.25rem;
+    align-self: start;
+    position: relative;
+  }
+  .mast aside::before {
+    content: "§"; position: absolute; left: -.55rem; top: -.15rem;
+    background: var(--paper); padding: 0 .35rem;
+    font-family: 'Fraunces', serif; font-style: italic;
+    color: var(--gold); font-size: 1.4rem;
+  }
+  .mast aside .pq {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: 1.4rem; line-height: 1.35; color: var(--navy);
+    margin: .85rem 0 1.5rem;
+    font-weight: 400;
+  }
+  .mast aside .pq::before { content: "\201C"; color: var(--gold); margin-right: .1em; }
+  .mast aside .pq::after  { content: "\201D"; color: var(--gold); margin-left: .1em; }
+  .mast aside .att {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--slate-soft); line-height: 1.6;
+  }
+  .mast aside .att b { color: var(--navy); font-weight: 500; }
+  .mast aside .att a { color: var(--navy); border-bottom: 1px solid var(--gold); padding-bottom: 1px; }
+
+  /* === Stats strip === */
+  .strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--paper-line);
+    background: var(--paper-soft);
+  }
+  .strip .cell {
+    padding: 1.85rem 1.75rem;
+    border-right: 1px solid var(--paper-line);
+    position: relative;
+  }
+  .strip .cell:last-child { border-right: 0; }
+  .strip .num {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 3rem; line-height: 1; letter-spacing: -.035em;
+    color: var(--navy);
+  }
+  .strip .num span { color: var(--gold); font-size: 1rem; margin-left: .25rem; }
+  .strip .num em { color: var(--slate-soft); font-style: normal; font-size: 1rem; margin-left: .3rem; font-family: 'Inter Tight', sans-serif; }
+  .strip .lbl {
+    margin-top: .8rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .66rem;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--slate-soft);
+    line-height: 1.6;
+  }
+  .strip .icon {
+    position: absolute; top: 1.85rem; right: 1.5rem;
+    font-family: 'JetBrains Mono', monospace; color: var(--gold); font-size: .72rem;
+    letter-spacing: .14em;
+  }
+
+  /* === Scan section === */
+  .scan {
+    padding: 5rem 2.25rem 5rem;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .scan-grid { display: grid; grid-template-columns: 1.05fr 1.4fr; gap: 4rem; align-items: end; }
+  .scan h2 {
+    font-family: 'Fraunces', serif; font-size: clamp(2.2rem, 1rem + 2.8vw, 3.6rem);
+    font-weight: 500; letter-spacing: -.025em; line-height: 1;
+    margin: 1.25rem 0 1.25rem; color: var(--navy);
+  }
+  .scan h2 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .scan p.intro {
+    margin: 0 0 1.5rem; max-width: 44ch;
+    color: var(--slate); line-height: 1.65;
+  }
+  .scan .quick {
+    display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;
+  }
+  .scan .quick a {
+    font-family: 'JetBrains Mono', monospace; font-size: .7rem;
+    letter-spacing: .12em; text-transform: uppercase;
+    border: 1px solid var(--paper-line-2);
+    padding: .45rem .75rem; color: var(--slate);
+    transition: all .2s ease;
+  }
+  .scan .quick a:hover { border-color: var(--navy); color: var(--navy); }
+
+  .scan-form {
+    background: #FFFFFF;
+    border: 1px solid var(--paper-line-2);
+    overflow: hidden;
+  }
+  .scan-form .hdr {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: .85rem 1.25rem;
+    border-bottom: 1px solid var(--paper-line);
+    font-family: 'JetBrains Mono', monospace; font-size: .66rem;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--slate-soft);
+    background: var(--paper-soft);
+  }
+  .scan-form .hdr .live { color: var(--green-ok); display: inline-flex; align-items: center; gap: .5rem; }
+  .scan-form .hdr .live::before {
+    content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green-ok);
+  }
+  .scan-form .body {
+    display: grid; grid-template-columns: 140px 1fr;
+  }
+  .scan-form .chain {
+    border-right: 1px solid var(--paper-line);
+    padding: 1.4rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .82rem;
+    color: var(--slate);
+    display: flex; flex-direction: column; justify-content: center; gap: .35rem;
+  }
+  .scan-form .chain .lbl { font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: var(--slate-soft); }
+  .scan-form .chain .v { color: var(--navy); font-weight: 500; }
+  .scan-form .input-wrap {
+    padding: 1.05rem 1.25rem;
+    display: flex; flex-direction: column; gap: .35rem;
+  }
+  .scan-form .input-wrap .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: .62rem;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--slate-soft);
+  }
+  .scan-form input {
+    background: transparent; border: 0; color: var(--navy);
+    font-family: 'JetBrains Mono', monospace; font-size: 1rem;
+    padding: 0; outline: none; width: 100%;
+  }
+  .scan-form input::placeholder { color: var(--slate-soft); }
+  .scan-form .submit {
+    border-top: 1px solid var(--paper-line);
+    display: grid; grid-template-columns: 1fr auto;
+    background: var(--paper-soft);
+  }
+  .scan-form .submit .legend {
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .7rem;
+    letter-spacing: .12em; color: var(--slate-soft);
+    display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;
+  }
+  .scan-form .submit .legend b { color: var(--navy); font-weight: 500; }
+  .scan-form button {
+    background: var(--navy); color: var(--paper); border: 0;
+    font-family: 'Inter Tight', sans-serif; font-weight: 500;
+    padding: 1rem 1.85rem; cursor: pointer; font-size: .9rem;
+    letter-spacing: .02em;
+    display: inline-flex; align-items: center; gap: .65rem;
+    transition: background .2s ease;
+  }
+  .scan-form button:hover { background: var(--navy-2); }
+  .scan-form button .arrow { font-family: 'JetBrains Mono', monospace; transition: transform .2s ease; }
+  .scan-form button:hover .arrow { transform: translateX(3px); }
+
+  /* === Methodology === */
+  .meth {
+    padding: 5rem 2.25rem;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .meth-head { max-width: 60ch; margin-bottom: 2.75rem; }
+  .meth h2 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(1.9rem, 1rem + 2.4vw, 3rem); letter-spacing: -.02em;
+    margin: 1rem 0 1.1rem; line-height: 1.05; color: var(--navy);
+  }
+  .meth h2 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .meth p.lede {
+    color: var(--slate); line-height: 1.65; font-size: 1.02rem;
+  }
+  .typ-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border-top: 1px solid var(--paper-line);
+  }
+  .typ {
+    padding: 1.85rem 1.5rem;
+    border-right: 1px solid var(--paper-line);
+    position: relative;
+  }
+  .typ:last-child { border-right: 0; }
+  .typ .num {
+    font-family: 'Fraunces', serif; font-style: italic;
+    color: var(--slate-soft); font-size: .92rem; margin-bottom: 1.1rem;
+  }
+  .typ .num b { color: var(--gold); font-style: normal; font-weight: 500; }
+  .typ h3 {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 1.3rem;
+    letter-spacing: -.01em; margin: 0 0 .6rem; line-height: 1.2; color: var(--navy);
+  }
+  .typ p { color: var(--slate); font-size: .9rem; line-height: 1.55; margin: 0 0 1.2rem; }
+  .typ .src {
+    font-family: 'JetBrains Mono', monospace; font-size: .65rem;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--slate-soft);
+    border-top: 1px dashed var(--paper-line-2);
+    padding-top: .8rem;
+  }
+  .typ .src b { color: var(--navy); font-weight: 500; }
+
+  /* === Sample report === */
+  .report {
+    padding: 5rem 2.25rem 5.5rem;
+    border-bottom: 1px solid var(--paper-line);
+    background: var(--paper-soft);
+  }
+  .report-head {
+    display: grid; grid-template-columns: 1fr auto; gap: 2rem; align-items: end;
+    margin-bottom: 2.25rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--paper-line);
+  }
+  .report-head h2 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(1.7rem, 1rem + 2vw, 2.6rem); letter-spacing: -.02em;
+    margin: 1rem 0 .25rem; line-height: 1.1; color: var(--navy);
+  }
+  .report-head h2 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .report-head .addr-block {
+    font-family: 'JetBrains Mono', monospace; font-size: .85rem; color: var(--slate);
+    margin-top: .5rem;
+  }
+  .report-head .meta {
+    font-family: 'JetBrains Mono', monospace; font-size: .72rem;
+    color: var(--slate-soft); display: flex; gap: 1.6rem; flex-wrap: wrap;
+    letter-spacing: .1em; text-transform: uppercase;
+  }
+  .report-head .meta b { color: var(--navy); font-weight: 500; }
+
+  .report-grid {
+    display: grid; grid-template-columns: 340px 1fr; gap: 2.5rem;
+  }
+
+  /* Score panel */
+  .scorepanel {
+    border: 1px solid var(--paper-line-2); background: #FFFFFF;
+    padding: 1.85rem 1.75rem;
+  }
+  .scorepanel .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: .66rem;
+    letter-spacing: .22em; text-transform: uppercase; color: var(--slate-soft);
+  }
+  .gauge-wrap {
+    margin: 1rem auto; width: 100%; max-width: 260px;
+    position: relative; aspect-ratio: 1;
+  }
+  .gauge-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .gauge-wrap .center {
+    position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+  }
+  .gauge-wrap .center .v {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 4.6rem; line-height: 1; letter-spacing: -.04em;
+    color: var(--navy);
+  }
+  .gauge-wrap .center .of {
+    color: var(--slate-soft); font-family: 'JetBrains Mono', monospace;
+    font-size: .76rem; letter-spacing: .14em; margin-top: .35rem;
+  }
+  .ladder {
+    margin-top: 1rem;
+    border-top: 1px solid var(--paper-line);
+    padding-top: 1.1rem;
+  }
+  .ladder .row {
+    display: grid; grid-template-columns: 1fr auto; gap: 1rem;
+    padding: .5rem 0;
+    font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+    color: var(--slate);
+    align-items: center;
+    position: relative;
+  }
+  .ladder .row .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    display: inline-block; margin-right: .65rem; vertical-align: middle;
+  }
+  .ladder .row.active { color: var(--navy); font-weight: 500; }
+  .ladder .row.active::before {
+    content: "\25B8"; position: absolute; left: -1rem; color: var(--gold);
+  }
+  .ladder .row .range { color: var(--slate-soft); font-size: .72rem; letter-spacing: .12em; }
+  .verdict {
+    margin-top: 1.1rem; padding-top: 1.1rem;
+    border-top: 1px solid var(--paper-line);
+  }
+  .verdict .tag {
+    display: inline-block; padding: .3rem .65rem;
+    background: rgba(15,42,74,.06); color: var(--navy);
+    font-family: 'JetBrains Mono', monospace; font-size: .66rem;
+    letter-spacing: .2em; text-transform: uppercase; font-weight: 500;
+    border: 1px solid rgba(15,42,74,.18);
+    margin-bottom: .85rem;
+  }
+  .verdict p {
+    font-family: 'Fraunces', serif; font-size: 1rem; line-height: 1.5;
+    color: var(--navy); margin: 0;
+  }
+
+  /* Findings */
+  .findings .ftop {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .findings .ftop .lbl {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    letter-spacing: .22em; text-transform: uppercase; color: var(--slate-soft);
+  }
+  .findings .ftop .count {
+    font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--slate);
+  }
+  .findings .ftop .count b { color: var(--amber); font-weight: 500; }
+  .finding {
+    padding: 1.6rem 0;
+    border-bottom: 1px solid var(--paper-line);
+    display: grid; grid-template-columns: 110px 1fr; gap: 2rem;
+  }
+  .finding .sev-wrap { padding-top: .15rem; }
+  .finding .sev {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--amber); font-weight: 500;
+  }
+  .finding .sev.high { color: #9B5520; }
+  .finding .sev.crit { color: var(--red); }
+  .finding .sev .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: currentColor; margin-right: .55rem; vertical-align: middle;
+  }
+  .finding .typ-tag {
+    margin-top: .85rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .62rem;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--slate-soft);
+  }
+  .finding h3 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: 1.45rem; line-height: 1.25; margin: 0 0 .8rem;
+    letter-spacing: -.012em; color: var(--navy);
+  }
+  .finding h3 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .finding p.body {
+    color: var(--slate); line-height: 1.65;
+    margin: 0 0 1rem; max-width: 64ch;
+  }
+  .finding p.body b { color: var(--navy); font-weight: 600; }
+
+  table.evi {
+    width: 100%; border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace; font-size: .76rem;
+    margin: .25rem 0 1rem;
+    background: #FFFFFF; border: 1px solid var(--paper-line);
+  }
+  table.evi thead th {
+    text-align: left; padding: .55rem .85rem; font-weight: 500;
+    color: var(--slate-soft); border-bottom: 1px solid var(--paper-line);
+    font-size: .62rem; letter-spacing: .18em; text-transform: uppercase;
+    background: var(--paper-soft);
+  }
+  table.evi tbody td {
+    padding: .55rem .85rem; border-bottom: 1px solid var(--paper-line);
+    color: var(--slate);
+  }
+  table.evi tbody tr:last-child td { border-bottom: 0; }
+  table.evi td.dir.in  { color: var(--green-ok); font-weight: 600; }
+  table.evi td.dir.out { color: var(--red); font-weight: 600; }
+  table.evi td.amt { color: var(--navy); font-weight: 500; }
+  table.evi td.cp a { color: var(--navy); border-bottom: 1px dashed var(--paper-line-2); }
+  table.evi td.cp a:hover { border-bottom-color: var(--gold); }
+
+  .citation {
+    margin-top: 1rem; padding: .85rem 1rem;
+    background: #FFFFFF; border-left: 2px solid var(--gold);
+    border-top: 1px solid var(--paper-line);
+    border-right: 1px solid var(--paper-line);
+    border-bottom: 1px solid var(--paper-line);
+    display: flex; gap: .85rem; align-items: baseline;
+    font-family: 'Fraunces', serif; font-style: italic;
+    color: var(--slate); font-size: .92rem; line-height: 1.55;
+  }
+  .citation .src-tag {
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace; font-size: .62rem;
+    letter-spacing: .2em; text-transform: uppercase;
+    color: var(--navy); font-weight: 600; flex-shrink: 0;
+  }
+  .citation a { color: var(--navy); border-bottom: 1px dashed var(--slate-soft); }
+
+  .no-more {
+    padding: 1.4rem 0 .25rem;
+    font-family: 'Fraunces', serif; font-style: italic; color: var(--slate-soft);
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  /* === Trust strip === */
+  .trust {
+    padding: 4rem 2.25rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--paper-line);
+    text-align: center;
+  }
+  .trust h2 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(1.7rem, 1rem + 1.8vw, 2.4rem); letter-spacing: -.02em;
+    margin: 1rem 0 0; color: var(--navy);
+  }
+  .trust h2 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .trust .marquee {
+    margin-top: 2.25rem;
+    display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+    font-family: 'Inter Tight', sans-serif; color: var(--slate);
+    font-size: .95rem; letter-spacing: .02em;
+    align-items: center;
+  }
+  .trust .marquee span { display: inline-flex; align-items: center; gap: .5rem; }
+  .trust .marquee span b {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500; color: var(--navy); font-size: .72rem;
+    letter-spacing: .14em; text-transform: uppercase;
+    padding: .25rem .55rem; border: 1px solid var(--paper-line-2);
+  }
+
+  /* === Final CTA === */
+  .cta {
+    padding: 6rem 2.25rem;
+    text-align: center;
+    background: var(--navy);
+    color: var(--paper);
+    position: relative;
+  }
+  .cta::before, .cta::after {
+    content: ""; position: absolute; width: 14px; height: 14px;
+    border: 1px solid var(--gold);
+    top: 1.75rem; left: 2.25rem;
+    border-right: 0; border-bottom: 0;
+  }
+  .cta::after {
+    left: auto; right: 2.25rem;
+    border: 1px solid var(--gold);
+    border-left: 0; border-bottom: 0;
+  }
+  .cta .kicker { color: var(--steel); }
+  .cta .kicker::before { background: var(--gold); }
+  .cta h2 {
+    font-family: 'Fraunces', serif; font-weight: 500;
+    font-size: clamp(2.2rem, 1rem + 4.5vw, 4.8rem); letter-spacing: -.03em;
+    margin: 1.25rem auto 1.5rem; max-width: 18ch; line-height: 1.05;
+    color: var(--paper);
+  }
+  .cta h2 em { font-style: italic; color: var(--gold); font-weight: 500; }
+  .cta p { color: var(--steel); max-width: 52ch; margin: 0 auto 2.25rem; line-height: 1.65; }
+  .cta-actions { display: inline-flex; gap: 1rem; }
+  .cta .btn-fill {
+    background: var(--gold); color: var(--navy); border: 1px solid var(--gold);
+  }
+  .cta .btn-fill:hover { background: var(--gold-soft); }
+  .cta .btn-line {
+    border-color: rgba(255,255,255,.25); color: var(--paper);
+  }
+  .cta .btn-line:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* === Footer === */
+  footer.foot {
+    padding: 3rem 2.25rem 1.75rem;
+    background: var(--paper-soft);
+    border-top: 1px solid var(--paper-line);
+  }
+  footer.foot .top-row {
+    display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 2rem;
+    padding-bottom: 2rem; border-bottom: 1px solid var(--paper-line);
+  }
+  footer.foot .col h4 {
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    letter-spacing: .2em; text-transform: uppercase; color: var(--navy);
+    margin: 0 0 1rem;
+  }
+  footer.foot .col ul { list-style: none; padding: 0; margin: 0; }
+  footer.foot .col li { padding: .3rem 0; }
+  footer.foot .col a { color: var(--slate); font-size: .9rem; transition: color .2s ease; }
+  footer.foot .col a:hover { color: var(--navy); }
+  footer.foot .brand-col p {
+    color: var(--slate); font-size: .9rem; line-height: 1.6;
+    max-width: 38ch; margin: .75rem 0 0;
+    font-family: 'Fraunces', serif; font-style: italic;
+  }
+  footer.foot .legal {
+    padding-top: 1.4rem;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem;
+    font-family: 'JetBrains Mono', monospace; font-size: .68rem;
+    color: var(--slate-soft); letter-spacing: .12em; text-transform: uppercase;
+  }
+
+  /* === Responsive === */
+  @media (max-width: 1100px) {
+    .typ-grid { grid-template-columns: repeat(2, 1fr); }
+    .typ { border-bottom: 1px solid var(--paper-line); }
+    .typ:nth-child(2n) { border-right: 0; }
+    .report-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 880px) {
+    nav.top ul { display: none; }
+    .mast { grid-template-columns: 1fr; gap: 2.5rem; padding: 3.5rem 1.5rem 2.5rem; }
+    .mast aside { border-left: 0; padding-left: 0; border-top: 1px solid var(--paper-line); padding-top: 2rem; }
+    .strip { grid-template-columns: 1fr 1fr; }
+    .strip .cell { border-bottom: 1px solid var(--paper-line); }
+    .strip .cell:nth-child(2n) { border-right: 0; }
+    .scan-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .scan-form .body { grid-template-columns: 1fr; }
+    .scan-form .chain { border-right: 0; border-bottom: 1px solid var(--paper-line); }
+    .scan-form .submit { grid-template-columns: 1fr; }
+    .scan-form button { width: 100%; justify-content: center; }
+    .typ-grid { grid-template-columns: 1fr; }
+    .typ { border-right: 0; border-bottom: 1px solid var(--paper-line); }
+    footer.foot .top-row { grid-template-columns: 1fr 1fr; }
+    .ticker-row { gap: 1.5rem; padding: 0 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Ticker -->
+<div class="ticker">
+  <div class="ticker-row">
+    <span><b>CHAINSIGHT</b></span>
+    <span><b>OFAC SDN</b>last sync 04-29 04:12 UTC</span>
+    <span><b>FATF VA RFI</b>2020 Sept · 14 indicators</span>
+    <span><b>TYPOLOGIES</b>5 active</span>
+    <span><b>CHAINS</b>ETH POL BSC ARB BASE OP</span>
+    <span class="live"><span class="pulse"></span>Engine online · v0.6.0</span>
+  </div>
+</div>
+
+<!-- Top nav -->
+<nav class="top">
+  <div class="brand">
+    <span class="mark"></span>
+    <span class="lockup">
+      <span class="logo">ChainSight</span>
+      <span class="by">Bureau of AML intelligence</span>
+    </span>
+  </div>
+  <ul>
+    <li><a href="#">Methodology</a></li>
+    <li><a href="#">Typologies</a></li>
+    <li><a href="#">Sample report</a></li>
+    <li><a href="#">API</a></li>
+    <li><a href="#">Pricing</a></li>
+  </ul>
+  <div class="right">
+    <a class="btn-line" href="#">Sign in</a>
+    <a class="btn-fill" href="#">Request access</a>
+  </div>
+</nav>
+
+<!-- Masthead -->
+<section class="mast">
+  <div>
+    <div class="kicker">Volume I &middot; AML risk intelligence onchain</div>
+    <h1>Auditable AML reports<br/><span class="light">your compliance team can</span> <em>defend.</em></h1>
+    <p class="lede">ChainSight screens any blockchain address against OFAC SDN, mixer exposure, scam clusters, and seven FATF money-laundering typologies — and produces a deterministic, citation-backed report. <b>No black-box ML, no vendor opacity.</b></p>
+    <div class="meta-row">
+      <span><b>By</b> J. Fern&aacute;ndez Gonz&aacute;lez</span>
+      <span><b>Edition</b> 0.2.0</span>
+      <span><b>Updated</b> 29 Apr 2026</span>
+      <span><b>Coverage</b> 6 chains</span>
+    </div>
+  </div>
+  <aside>
+    <div class="kicker" style="color: var(--slate-soft);">Editor's note</div>
+    <div class="pq">Black-box risk scores fail audit. Every finding here cites the underlying FATF or OFAC source — and links the exact transactions that triggered it.</div>
+    <div class="att"><b>Methodology</b> &middot; ChainSight is fully deterministic, fully open. <a href="#">Read the engine on GitHub &rarr;</a></div>
+  </aside>
+</section>
+
+<!-- Stats strip -->
+<section class="strip">
+  <div class="cell">
+    <div class="num">7<em>typologies</em></div>
+    <div class="lbl">Sanctions &middot; Mixer &middot; Scam &middot; Layering &middot; Peel chain &middot; Counterparty &middot; Dormant</div>
+    <div class="icon">&sect;I</div>
+  </div>
+  <div class="cell">
+    <div class="num">6<em>chains</em></div>
+    <div class="lbl">ETH &middot; Polygon &middot; BSC &middot; Arbitrum &middot; Base &middot; Optimism</div>
+    <div class="icon">&sect;II</div>
+  </div>
+  <div class="cell">
+    <div class="num">100<span>%</span></div>
+    <div class="lbl">Deterministic scoring &middot; reproducible</div>
+    <div class="icon">&sect;III</div>
+  </div>
+  <div class="cell">
+    <div class="num">3<em>formats</em></div>
+    <div class="lbl">Markdown &middot; JSON &middot; PDF export</div>
+    <div class="icon">&sect;IV</div>
+  </div>
+</section>
+
+<!-- Scan section -->
+<section class="scan">
+  <div class="scan-grid">
+    <div>
+      <div class="kicker">&sect;I &middot; Begin a scan</div>
+      <h2>Paste an address.<br/>Receive a report in <em>seconds.</em></h2>
+      <p class="intro">Seven typology detectors, OFAC SDN screening, and deterministic scoring run server-side. Every flag carries an evidence trail of transactions and a citation back to its regulatory source.</p>
+      <div class="quick">
+        <a href="#">Try sample address</a>
+        <a href="#">View JSON spec</a>
+        <a href="#">Read methodology</a>
+      </div>
+    </div>
+    <form class="scan-form" onsubmit="event.preventDefault()">
+      <div class="hdr">
+        <span>chainsight :: scan</span>
+        <span class="live">Engine ready</span>
+      </div>
+      <div class="body">
+        <div class="chain">
+          <span class="lbl">Chain</span>
+          <span class="v">&#x2B22; Ethereum</span>
+          <span style="font-size:.66rem; color: var(--slate-soft);">mainnet &middot; chain 1</span>
+        </div>
+        <div class="input-wrap">
+          <span class="lbl">Wallet address</span>
+          <input value="0x64954FcfEe8eF00416c40E3ff624dC6DdE7Ca0B4" />
+        </div>
+      </div>
+      <div class="submit">
+        <div class="legend">
+          <span><b>~6s</b> est.</span>
+          <span><b>7</b> typologies</span>
+          <span><b>FATF</b> &middot; <b>OFAC</b> sources</span>
+        </div>
+        <button type="submit">
+          <span>Generate report</span>
+          <span class="arrow">&rarr;</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- Methodology -->
+<section class="meth">
+  <div class="meth-head">
+    <div class="kicker">&sect;II &middot; Methodology</div>
+    <h2>Seven typologies.<br/>Citation per finding. <em>Zero black box.</em></h2>
+    <p class="lede">Each detector is a short, reviewable function — not a model. Results are reproducible across runs, and every finding is tied back to a specific regulatory source.</p>
+  </div>
+  <div class="typ-grid">
+    <div class="typ">
+      <div class="num"><b>I.</b> Sanctions exposure</div>
+      <h3>Direct counterparty screening</h3>
+      <p>Flags any transfer where the counterparty appears on OFAC's SDN list or sanctions registries from EU, UK, UN.</p>
+      <div class="src"><b>OFAC</b> SDN &middot; daily sync</div>
+    </div>
+    <div class="typ">
+      <div class="num"><b>II.</b> Mixer exposure</div>
+      <h3>Privacy-tool flow tracing</h3>
+      <p>Detects deposits to or withdrawals from known mixers — Tornado Cash, Sinbad, Wasabi — with value-weighted severity.</p>
+      <div class="src"><b>FATF</b> RFI &sect;3.1(b)</div>
+    </div>
+    <div class="typ">
+      <div class="num"><b>III.</b> Scam exposure</div>
+      <h3>Curated cluster matching</h3>
+      <p>Cross-references against known scam, drainer, ransomware, and rug-pull clusters with categorical severity.</p>
+      <div class="src"><b>FATF</b> RFI &sect;4.1</div>
+    </div>
+    <div class="typ">
+      <div class="num"><b>IV.</b> Layering</div>
+      <h3>Pass-through pattern</h3>
+      <p>Identifies inbound flows forwarded out within 60 minutes in near-identical amounts — classic placement-layering signature.</p>
+      <div class="src"><b>FATF</b> RFI &sect;4.2(a)</div>
+    </div>
+    <div class="typ">
+      <div class="num"><b>V.</b> Peel chain</div>
+      <h3>Sequential decreasing outflows</h3>
+      <p>Detects long chains of small outflows from a high-value source — a hallmark of structured crypto laundering.</p>
+      <div class="src"><b>FATF</b> RFI &sect;4.2(c)</div>
+    </div>
+  </div>
+</section>
+
+<!-- Sample report -->
+<section class="report">
+  <div class="report-head">
+    <div>
+      <div class="kicker">&sect;III &middot; Specimen report</div>
+      <h2>Wallet <em>0x6495&hellip;a0b4</em></h2>
+      <div class="addr-block">0x64954fcfee8ef00416c40e3ff624dc6dde7ca0b4</div>
+    </div>
+    <div class="meta">
+      <span><b>231</b> TX</span>
+      <span><b>116</b> COUNTERPARTIES</span>
+      <span><b>2018-02-27</b> FIRST</span>
+      <span><b>2026-01-24</b> LAST</span>
+    </div>
+  </div>
+
+  <div class="report-grid">
+    <!-- Score panel -->
+    <div class="scorepanel">
+      <div class="lbl">Composite risk score</div>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 200 200">
+          <!-- Track -->
+          <circle cx="100" cy="100" r="86" fill="none" stroke="#E8E4D8" stroke-width="14"/>
+          <!-- Threshold arc segments -->
+          <circle cx="100" cy="100" r="86" fill="none" stroke="#1F4A36" stroke-width="2"
+            stroke-dasharray="135 405" stroke-dashoffset="0" opacity=".5"/>
+          <circle cx="100" cy="100" r="86" fill="none" stroke="#B07A1F" stroke-width="2"
+            stroke-dasharray="135 405" stroke-dashoffset="-135" opacity=".5"/>
+          <circle cx="100" cy="100" r="86" fill="none" stroke="#9B5520" stroke-width="2"
+            stroke-dasharray="135 405" stroke-dashoffset="-270" opacity=".5"/>
+          <circle cx="100" cy="100" r="86" fill="none" stroke="#9B2D2D" stroke-width="2"
+            stroke-dasharray="135 405" stroke-dashoffset="-405" opacity=".5"/>
+          <!-- Active arc: 15/100 -->
+          <circle cx="100" cy="100" r="86" fill="none" stroke="#0F2A4A" stroke-width="14"
+            stroke-dasharray="81 540" stroke-linecap="round"/>
+        </svg>
+        <div class="center">
+          <div>
+            <div class="v">15</div>
+            <div class="of">/ 100 SCORE</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ladder">
+        <div class="row active">
+          <span><span class="dot" style="background:var(--t-low)"></span>Low risk</span>
+          <span class="range">0&mdash;24</span>
+        </div>
+        <div class="row">
+          <span><span class="dot" style="background:var(--t-med)"></span>Standard DD</span>
+          <span class="range">25&mdash;49</span>
+        </div>
+        <div class="row">
+          <span><span class="dot" style="background:var(--t-high)"></span>Enhanced DD</span>
+          <span class="range">50&mdash;74</span>
+        </div>
+        <div class="row">
+          <span><span class="dot" style="background:var(--t-crit)"></span>Block / SAR</span>
+          <span class="range">75&mdash;100</span>
+        </div>
+      </div>
+
+      <div class="verdict">
+        <span class="tag">Standard DD</span>
+        <p>Routine customer due diligence indicated. No escalation triggers; activity falls within the expected behavioral envelope for a long-lived wallet.</p>
+      </div>
+    </div>
+
+    <!-- Findings -->
+    <div class="findings">
+      <div class="ftop">
+        <span class="lbl">Findings &middot; regulatory citations</span>
+        <span class="count"><b>1</b> medium &middot; <b>0</b> high &middot; <b>0</b> critical</span>
+      </div>
+
+      <div class="finding">
+        <div class="sev-wrap">
+          <div class="sev"><span class="dot"></span>Medium</div>
+          <div class="typ-tag">Layering<br/>pass-through</div>
+        </div>
+        <div>
+          <h3>Layering pattern: <em>5 rapid pass-through transactions.</em></h3>
+          <p class="body">Inbound ETH was forwarded out within sixty minutes in near-identical amounts (within 5 percent tolerance). Total value passed through: <b>39.5630 ETH</b>. This is a textbook layering signature in the placement-layering-integration framework — typical of fund commingling or trading-account routing.</p>
+          <table class="evi">
+            <thead>
+              <tr><th>Direction</th><th>Amount</th><th>Counterparty</th><th>&Delta;t</th><th>Tx</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="dir in">IN</td><td class="amt">12.0056 ETH</td><td class="cp"><a>0x267b&hellip;fdc0</a></td><td>&mdash;</td><td>0x880e&hellip;5953</td></tr>
+              <tr><td class="dir out">OUT</td><td class="amt">12.0000 ETH</td><td class="cp"><a>0xf0b9&hellip;a1b5</a></td><td>+212s</td><td>0xe1d2&hellip;1881</td></tr>
+              <tr><td class="dir in">IN</td><td class="amt">16.7662 ETH</td><td class="cp"><a>0x267b&hellip;fdc0</a></td><td>&mdash;</td><td>0xad6b&hellip;42bc</td></tr>
+              <tr><td class="dir out">OUT</td><td class="amt">16.7000 ETH</td><td class="cp"><a>0x6e2e&hellip;7d2a</a></td><td>+1970s</td><td>0xd229&hellip;b7a4</td></tr>
+              <tr><td class="dir in">IN</td><td class="amt">6.0000 ETH</td><td class="cp"><a>0x3f5c&hellip;f0be</a></td><td>&mdash;</td><td>0xcbc2&hellip;c54c</td></tr>
+              <tr><td class="dir out">OUT</td><td class="amt">6.0000 ETH</td><td class="cp"><a>0xeb1e&hellip;063e</a></td><td>+1141s</td><td>0x382e&hellip;017c</td></tr>
+            </tbody>
+          </table>
+          <div class="citation">
+            <span class="src-tag">FATF &middot; 2020</span>
+            <span>Virtual Assets Red Flag Indicators, Section 4.2(a) — &ldquo;Use of crypto-assets to layer illicit proceeds through rapid, near-equal pass-through transfers.&rdquo; <a href="#">Read source &rarr;</a></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-more">
+        — No further high or critical findings. Six remaining typologies returned clean.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust strip -->
+<section class="trust">
+  <div class="kicker" style="justify-content:center;">&sect;IV &middot; Built on the open record</div>
+  <h2>Citations, not <em>opinions.</em></h2>
+  <div class="marquee">
+    <span><b>OFAC</b>SDN List</span>
+    <span><b>FATF</b>VA RFI 2020</span>
+    <span><b>EU</b>Consolidated Sanctions</span>
+    <span><b>UK HMT</b>Sanctions List</span>
+    <span><b>Etherscan</b>v2 API</span>
+    <span><b>FinCEN</b>Crypto Advisory 2019</span>
+  </div>
+</section>
+
+<!-- Final CTA -->
+<section class="cta">
+  <div class="kicker" style="justify-content:center;">&sect;V &middot; Begin</div>
+  <h2>Make every wallet <em>defensible.</em></h2>
+  <p>ChainSight is in private access. Compliance teams, fund administrators, and regulated exchanges can request early API access today.</p>
+  <div class="cta-actions">
+    <a class="btn-fill" href="#">Request access &rarr;</a>
+    <a class="btn-line" href="#">View source on GitHub</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="foot">
+  <div class="top-row">
+    <div class="col brand-col">
+      <div class="brand">
+        <span class="mark"></span>
+        <span class="lockup">
+          <span class="logo">ChainSight</span>
+          <span class="by">Bureau of AML intelligence</span>
+        </span>
+      </div>
+      <p>An open-source AML risk-scoring engine for wallet-level forensics. Built by AIRWA Finance — Valencia.</p>
+    </div>
+    <div class="col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#">Scan a wallet</a></li>
+        <li><a href="#">Methodology</a></li>
+        <li><a href="#">Typologies</a></li>
+        <li><a href="#">API reference</a></li>
+        <li><a href="#">Changelog</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="#">Sample report</a></li>
+        <li><a href="#">FATF citations</a></li>
+        <li><a href="#">OFAC sources</a></li>
+        <li><a href="#">GitHub</a></li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About AIRWA</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="#">Terms</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="legal">
+    <span>CHAINSIGHT v0.2.0 &middot; AIRWA FINANCE &middot; MIT LICENSE</span>
+    <span>EDUCATIONAL &middot; NOT REGULATED ADVICE &middot; NO DETERMINATION OF LEGAL STATUS</span>
+  </div>
+</footer>
+
+</body>
+</html>
