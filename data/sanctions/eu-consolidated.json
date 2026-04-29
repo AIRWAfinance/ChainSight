@@ -1,0 +1,31 @@
+{
+  "list": "EU_CFSP",
+  "lastSyncedAt": "2026-04-29T12:18:50.781Z",
+  "lastSyncOk": true,
+  "count": 2,
+  "source": "https://data.opensanctions.org/datasets/latest/eu_fsf/entities.ftm.json",
+  "addresses": [
+    {
+      "address": "0x002471b8a185f9980708d0eaec5b289714f56f8d",
+      "list": "EU_CFSP",
+      "entity": "Garantex",
+      "source": {
+        "source": "EU Council, Consolidated Financial Sanctions List (CFSP) — via OpenSanctions",
+        "url": "https://www.opensanctions.org/datasets/eu_fsf/",
+        "retrievedAt": "2026-04-29T12:18:50.513Z",
+        "reference": "OpenSanctions entity NK-XQyqxmZPMezqQiDeHoGQjf"
+      }
+    },
+    {
+      "address": "0x3051ca7cb7f6c599fa2f27385ad75010cf0f2bbf",
+      "list": "EU_CFSP",
+      "entity": "Garantex",
+      "source": {
+        "source": "EU Council, Consolidated Financial Sanctions List (CFSP) — via OpenSanctions",
+        "url": "https://www.opensanctions.org/datasets/eu_fsf/",
+        "retrievedAt": "2026-04-29T12:18:50.513Z",
+        "reference": "OpenSanctions entity NK-XQyqxmZPMezqQiDeHoGQjf"
+      }
+    }
+  ]
+}

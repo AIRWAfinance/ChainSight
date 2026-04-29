@@ -8,7 +8,7 @@
   display: grid;
   grid-template-columns: var(--app-sidebar-w, 248px) 1fr;
   min-height: calc(100vh - var(--ticker-h, 33px));
-  background: var(--paper);
+  background: var(--ink-0);
 }
 
 /* ===== Sidebar ===== */
@@ -232,7 +232,7 @@
 }
 
 .topbar {
-  background: var(--paper);
+  background: var(--ink-0);
   border-bottom: 1px solid var(--paper-line);
   padding: 0.85rem 1.75rem;
   display: flex;

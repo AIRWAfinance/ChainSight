@@ -1,0 +1,69 @@
+{
+  "list": "UK_HMT",
+  "lastSyncedAt": "2026-04-29T12:00:58.649Z",
+  "lastSyncOk": true,
+  "count": 6,
+  "source": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml",
+  "addresses": [
+    {
+      "address": "0x175d44451403edf28469df03a9280c1197adb92c",
+      "list": "UK_HMT",
+      "source": {
+        "source": "UK HM Treasury OFSI Consolidated List",
+        "url": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml",
+        "retrievedAt": "2026-04-29",
+        "reference": "UK OFSI consolidated list"
+      }
+    },
+    {
+      "address": "0xe950dc316b836e4eefb8308bf32bf7c72a1358ff",
+      "list": "UK_HMT",
+      "source": {
+        "source": "UK HM Treasury OFSI Consolidated List",
+        "url": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml",
+        "retrievedAt": "2026-04-29",
+        "reference": "UK OFSI consolidated list"
+      }
+    },
+    {
+      "address": "0x21b8d56bda776bbe68655a16895afd96f5534fed",
+      "list": "UK_HMT",
+      "source": {
+        "source": "UK HM Treasury OFSI Consolidated List",
+        "url": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml",
+        "retrievedAt": "2026-04-29",
+        "reference": "UK OFSI consolidated list"
+      }
+    },
+    {
+      "address": "0xd599ac04a1c786972b81e0fef6fb0c3e7b52f8a7",
+      "list": "UK_HMT",
+      "source": {
+        "source": "UK HM Treasury OFSI Consolidated List",
+        "url": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml",
+        "retrievedAt": "2026-04-29",
+        "reference": "UK OFSI consolidated list"
+      }
+    },
+    {
+      "address": "0xae05eb856cb28c156d9722094f5eefd5693bc181",
+      "list": "UK_HMT",
+      "source": {
+        "source": "UK HM Treasury OFSI Consolidated List",
+        "url": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml",
+        "retrievedAt": "2026-04-29",
+        "reference": "UK OFSI consolidated list"
+      }
+    },
+    {
+      "address": "0x7ff9cfad3877f21d41da833e2f775db0569ee3d9",
+      "list": "UK_HMT",
+      "source": {
+        "source": "UK HM Treasury OFSI Consolidated List",
+        "url": "https://ofsistorage.blob.core.windows.net/publishlive/2022format/ConList.xml",
+        "retrievedAt": "2026-04-29",
+        "reference": "UK OFSI consolidated list"
+      }
+    }
+  ]
+}

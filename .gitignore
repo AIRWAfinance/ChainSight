@@ -31,7 +31,8 @@ yarn-error.log*
 next-env.d.ts.bak
 
 # Cache + persistent storage (host-local data)
-cache/
+# Anchor to root so lib/cache/ source dir is NOT ignored
+/cache/
 data/storage/
 *.db
 *.db-journal

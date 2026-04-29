@@ -23,6 +23,7 @@ export function Footer() {
             <li><Link href="/methodology/coverage">Coverage &amp; scope</Link></li>
             <li><Link href="/methodology/calibration">Score calibration</Link></li>
             <li><Link href="/trust">Trust &amp; data handling</Link></li>
+            <li><Link href="/pricing">Pricing</Link></li>
             <li><Link href="/#sample-report">Sample report</Link></li>
           </ul>
         </div>

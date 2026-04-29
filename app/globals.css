@@ -1,58 +1,56 @@
 /* ===========================================================================
-   ChainSight — Navy Bureau Design System
-   Light, cream-paper background with navy ink + gold accents.
+   ChainSight — Stripe Clean Design System
+   White background, near-black ink, electric purple accent (#635BFF).
+   Sans-only Inter typography. No editorial decoration.
    --------------------------------------------------------------------------- */
 
 :root {
-  /* === Navy Bureau palette === */
-  /* Surfaces (variables previously named --ink-* are now light cream tones
-     for backwards compatibility with existing component CSS that
-     references them as page / surface backgrounds.) */
-  --ink-0:        #FBFAF6;   /* page bg — warm cream */
-  --ink-1:        #F4F1E8;   /* secondary surface */
+  /* === Surfaces === */
+  --ink-0:        #FFFFFF;   /* page bg — pure white */
+  --ink-1:        #F9FAFB;   /* secondary surface — subtle gray */
   --ink-2:        #FFFFFF;   /* card surface */
-  --ink-3:        #EFEBDD;   /* slightly inset */
-  --line:         #E8E4D8;   /* hairline borders */
-  --line-strong:  #D8D3C2;   /* stronger borders */
+  --ink-3:        #F3F4F6;   /* slightly inset */
+  --line:         #E5E7EB;   /* hairline borders */
+  --line-strong:  #D1D5DB;   /* stronger borders */
 
-  /* Inks (variables previously named --paper-* are now navy/slate tones —
-     primary text colour swaps from cream to deep navy.) */
-  --paper:        #0F2A4A;   /* primary ink — deep navy */
-  --paper-dim:    #4A5878;   /* body / secondary ink — slate */
-  --paper-muted:  #6B7C99;   /* muted ink — slate-soft */
+  /* === Inks (text colors) === */
+  --paper:        #0A0E27;   /* primary ink — near-black with deep blue tint */
+  --paper-dim:    #374151;   /* body / secondary ink */
+  --paper-muted:  #6B7280;   /* muted ink */
 
-  /* Direct semantic aliases — match the mockup naming for new components. */
-  --navy:         #0F2A4A;
-  --navy-2:       #1A3A5F;
-  --slate:        #4A5878;
-  --slate-soft:   #6B7C99;
-  --steel:        #C9D4E5;   /* text on navy bg */
-  --paper-soft:   #F4F1E8;
-  --paper-line:   #E8E4D8;
-  --paper-line-2: #D8D3C2;
+  /* === Direct semantic aliases === */
+  --navy:         #0A0E27;
+  --navy-2:       #1F2937;
+  --slate:        #4B5563;
+  --slate-soft:   #6B7280;
+  --steel:        #C7CCDB;   /* light gray text on dark bg (e.g. ticker) */
+  --paper-soft:   #F9FAFB;
+  --paper-line:   #E5E7EB;
+  --paper-line-2: #D1D5DB;
 
-  /* Accents */
-  --gold:         #C8A14B;
-  --gold-soft:    #E0C079;
-  --sand:         #B8A98A;
+  /* === Accent (Stripe purple — replaces former gold) === */
+  --gold:         #635BFF;
+  --gold-soft:    #8B85FF;
+  --sand:         #9CA3AF;   /* warm tan replaced with neutral gray */
 
-  /* Status */
-  --red:          #9B2D2D;
-  --amber:        #B07A1F;
-  --teal:         #1F4A36;
-  --green:        #1F4A36;
-  --green-ok:     #1F4A36;
+  /* === Status === */
+  --red:          #DC2626;
+  --amber:        #F59E0B;
+  --teal:         #16A34A;
+  --green:        #16A34A;
+  --green-ok:     #16A34A;
 
-  /* Threshold colors (verdict ladder, severity tags) */
-  --t-low:  #1F4A36;
-  --t-med:  #B07A1F;
-  --t-high: #9B5520;
-  --t-crit: #9B2D2D;
+  /* === Threshold colors (verdict ladder, severity tags) === */
+  --t-low:  #16A34A;
+  --t-med:  #F59E0B;
+  --t-high: #EA580C;
+  --t-crit: #DC2626;
 
-  /* Typography */
-  --font-serif: 'Fraunces', 'Times New Roman', serif;
-  --font-sans: 'Inter Tight', -apple-system, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* === Typography (Stripe Clean is sans-only;
+       --font-serif aliases sans so existing rules degrade cleanly) === */
+  --font-serif: 'Inter Tight', -apple-system, system-ui, sans-serif;
+  --font-sans:  'Inter Tight', -apple-system, system-ui, sans-serif;
+  --font-mono:  'JetBrains Mono', ui-monospace, monospace;
 }
 
 * { box-sizing: border-box; }
@@ -172,7 +170,7 @@ button { font-family: inherit; }
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--line);
-  background: var(--paper);
+  background: var(--ink-0);
 }
 .brand { display: flex; align-items: baseline; gap: 0.85rem; }
 .brand-mark {
@@ -251,12 +249,12 @@ button { font-family: inherit; }
 
 .btn-gold {
   background: var(--gold);
-  color: #1a1300;
+  color: #FFFFFF;
   border: 1px solid var(--gold);
   padding: 0.6rem 1.15rem;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 0.85rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   font-family: var(--font-sans);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -264,7 +262,7 @@ button { font-family: inherit; }
   align-items: center;
   gap: 0.5rem;
 }
-.btn-gold:hover { background: var(--gold-soft); }
+.btn-gold:hover { background: var(--gold-soft); border-color: var(--gold-soft); }
 .btn-gold:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* === Masthead === */
@@ -585,15 +583,14 @@ button { font-family: inherit; }
 .scan-form-legend b { color: var(--gold-soft); font-weight: 500; }
 .scan-form-btn {
   background: var(--gold);
-  color: #1a1300;
+  color: #FFFFFF;
   border: 0;
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 500;
   padding: 1rem 1.85rem;
   cursor: pointer;
   font-size: 0.92rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
   gap: 0.65rem;
@@ -2998,4 +2995,291 @@ table.evi td.amt { color: var(--paper); font-weight: 500; }
     padding: 0.3rem 0;
     border: 0;
   }
+}
+
+/* ===========================================================================
+   Pricing page (/pricing)
+   --------------------------------------------------------------------------- */
+.pricing-main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2.25rem 6rem;
+}
+.pricing-hero {
+  border-bottom: 1px solid var(--paper-line);
+  padding-bottom: 2.75rem;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+.pricing-hero h1 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(2.5rem, 1rem + 4.5vw, 4.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  margin: 0.5rem 0 1.5rem;
+  color: var(--navy);
+}
+.pricing-hero h1 em { font-style: italic; color: var(--gold); font-weight: 500; }
+.pricing-hero .lede {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: var(--slate);
+  max-width: 64ch;
+  margin: 0 auto;
+}
+.pricing-tiers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1px;
+  background: var(--paper-line);
+  border: 1px solid var(--paper-line-2);
+  margin-bottom: 4rem;
+}
+.tier {
+  background: #FFFFFF;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.tier-highlight {
+  background: var(--paper-soft);
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+  z-index: 1;
+}
+.tier-ribbon {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: var(--gold);
+  color: var(--navy);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.7rem;
+  font-weight: 600;
+}
+.tier h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  color: var(--navy);
+  margin: 0 0 0.5rem;
+}
+.tier-price {
+  margin: 0.5rem 0 0.75rem;
+  display: baseline;
+}
+.tier-price .num {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--navy);
+}
+.tier-price .cadence {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate-soft);
+  margin-left: 0.4rem;
+}
+.tier-best {
+  font-size: 0.85rem;
+  color: var(--slate);
+  margin: 0.5rem 0 1rem;
+  border-top: 1px dashed var(--paper-line);
+  padding-top: 0.75rem;
+}
+.tier-feats {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+  flex: 1;
+}
+.tier-feats li {
+  font-size: 0.88rem;
+  color: var(--slate);
+  padding: 0.3rem 0 0.3rem 1.25rem;
+  position: relative;
+  line-height: 1.5;
+}
+.tier-feats li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: var(--gold);
+  font-family: var(--font-mono);
+}
+.tier-pending {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slate-soft);
+  background: var(--paper-soft);
+  border: 1px dashed var(--paper-line-2);
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+.tier .btn-primary,
+.tier .btn-secondary {
+  display: block;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--paper-line-2);
+  font-weight: 500;
+  transition: all 120ms;
+}
+.tier .btn-primary {
+  background: var(--navy);
+  color: var(--paper-soft);
+  border-color: var(--navy);
+}
+.tier .btn-primary:hover {
+  background: var(--navy-2);
+}
+.tier .btn-secondary {
+  color: var(--navy);
+}
+.tier .btn-secondary:hover {
+  border-color: var(--navy);
+  background: var(--paper-soft);
+}
+.pricing-section {
+  margin-bottom: 3rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--paper-line-2);
+}
+.pricing-main h2 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 1rem + 1.5vw, 2.2rem);
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  margin: 0 0 1.25rem;
+}
+.pricing-main .lede.small {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  max-width: 70ch;
+  font-family: var(--font-serif);
+  color: var(--slate);
+}
+.pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  border: 1px solid var(--paper-line-2);
+  background: #FFFFFF;
+}
+.pricing-table thead th {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--slate-soft);
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--paper-line);
+  background: var(--paper-soft);
+}
+.pricing-table tbody td {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--paper-line);
+  color: var(--slate);
+  vertical-align: middle;
+}
+.pricing-table tbody tr:last-child td { border-bottom: 0; }
+.pricing-table .price {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.pricing-table .when {
+  font-family: var(--font-mono);
+  color: var(--gold);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pricing-table .compare .us td {
+  background: rgba(200, 161, 75, 0.06);
+  font-weight: 500;
+}
+.pricing-table .compare .us td b { color: var(--navy); }
+.pricing-list {
+  font-size: 1rem;
+  color: var(--slate);
+  line-height: 1.65;
+  padding-left: 1.5rem;
+}
+.pricing-list li { margin-bottom: 0.6rem; }
+.pricing-list li b { color: var(--navy); }
+.pricing-cta-bottom {
+  margin-top: 4rem;
+  padding-top: 2.5rem;
+  border-top: 1px solid var(--paper-line-2);
+  text-align: center;
+}
+.pricing-cta-bottom h2 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 1rem + 2vw, 2.6rem);
+  margin: 0 0 0.75rem;
+  font-weight: 500;
+  color: var(--navy);
+}
+.pricing-cta-bottom p {
+  color: var(--slate);
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  margin: 0 auto 1.75rem;
+  max-width: 60ch;
+}
+.pricing-cta-bottom .cta-row {
+  display: inline-flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.pricing-cta-bottom .btn-primary,
+.pricing-cta-bottom .btn-secondary {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.85rem 1.5rem;
+  border: 1px solid var(--paper-line-2);
+  transition: all 120ms;
+  font-weight: 500;
+}
+.pricing-cta-bottom .btn-primary {
+  background: var(--gold);
+  color: var(--navy);
+  border-color: var(--gold);
+}
+.pricing-cta-bottom .btn-primary:hover {
+  background: var(--gold-soft);
+  border-color: var(--gold-soft);
+}
+.pricing-cta-bottom .btn-secondary {
+  color: var(--navy);
+}
+.pricing-cta-bottom .btn-secondary:hover {
+  background: var(--paper-soft);
+  border-color: var(--navy);
+}
+@media (max-width: 768px) {
+  .pricing-tiers { grid-template-columns: 1fr; }
 }
