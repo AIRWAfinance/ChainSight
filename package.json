@@ -1,6 +1,6 @@
 {
   "name": "chainsight",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "AML risk scoring engine for cryptocurrency wallets. Web app + CLI. Analyses Ethereum addresses against FATF typologies (sanctions, mixer, scam, layering, peel chains) and produces auditable risk reports.",
   "private": true,
   "type": "module",
