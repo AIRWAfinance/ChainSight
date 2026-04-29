@@ -1,25 +1,15 @@
 # Personalised cold outreach — Tier 1 picks (3 of 10)
 
-> 🚨 **DO NOT SEND yet.** Deploy gating action below MUST be resolved first.
-> Probed 2026-04-28: `chainsight.airwa.finance` does NOT resolve via DNS,
-> and `chain-sight.vercel.app` is a different project. The product has no
-> public URL. Sending outreach pointing at a dead domain destroys credibility
-> in 1 click. Resolve `{{LIVE_URL}}` placeholders below before sending anything.
-
-## Gating action — fix before any outreach (1 hour)
-
-1. Confirm what Vercel project deploys this repo:
-   - `npx vercel link` from the repo root, or check Vercel dashboard for `AIRWAfinance/ChainSight`
-   - Note the actual production URL (e.g. `chainsight-airwafinance.vercel.app`)
-2. EITHER:
-   - **Path A (cheap, 5 min):** Use the Vercel-issued URL in outreach. Replace every `{{LIVE_URL}}` below with that URL.
-   - **Path B (proper, 30 min):** Add `chainsight.airwa.finance` as a custom domain in Vercel → set DNS A/CNAME at the airwa.finance registrar → wait for cert. THEN use that URL.
-3. Verify the live URL responds 200 on these three paths:
-   - `/` (home)
-   - `/methodology/coverage` (new scope page from this commit)
-   - `/scan` (demo target)
-4. Edit `beta/OUTREACH.md` line ~31 too (`https://chainsight.airwa.finance/beta` reference still hardcoded).
-5. THEN proceed with outreach.
+> ✅ **Live at https://chain-sight-nbhi.vercel.app** — verified 2026-04-29.
+> All 8 public pages return 200 (home, login, register, /methodology/coverage,
+> /methodology/calibration, /trust, /pricing, /scan).
+>
+> **Before sending the first email, set these env vars in Vercel:**
+> 1. `CHAINSIGHT_SESSION_SECRET` (any 32+ char random string) — required so login doesn't 500
+> 2. `ETHERSCAN_API_KEY` — required for live scans during a demo call
+> 3. `CHAINSIGHT_ADMIN_EMAILS=cryptoworldinversiones@gmail.com` — auto-promotes you on first login
+> 4. Redeploy after adding env vars (Vercel → Deployments → latest → Redeploy)
+> 5. Smoke-test `/api/auth/login` with bogus creds; expect 401 (env OK), not 500 (env missing)
 
 ---
 
@@ -59,7 +49,7 @@
 > SEPBLAC.
 >
 > Para que tomes la decisión rápido, he publicado el alcance honesto:
-> {{LIVE_URL}}/methodology/coverage
+> https://chain-sight-nbhi.vercel.app/methodology/coverage
 >
 > Y el audit de los 8 blockers que aún tenemos abiertos para ser un control
 > primario regulado: https://github.com/AIRWAfinance/ChainSight/blob/main/beta/AUDIT_AML_5_SPECIALISTS.md (verify link is public — repo must be public)
@@ -80,7 +70,7 @@
 > Antes de venderte nada, comparto el alcance honesto y el audit de los 8
 > blockers que aún tenemos:
 >
-> {{LIVE_URL}}/methodology/coverage
+> https://chain-sight-nbhi.vercel.app/methodology/coverage
 > https://github.com/AIRWAfinance/ChainSight/blob/main/beta/AUDIT_AML_5_SPECIALISTS.md (verify link is public — repo must be public)
 >
 > Pregunta concreta: si cerramos esos 8 blockers, ¿pilotaríais 90 días a
@@ -118,7 +108,7 @@
 > Two things I want you to read before any call:
 >
 > 1. **Honest scope statement** (what we cover, what we don't, what you
->    layer with): {{LIVE_URL}}/methodology/coverage
+>    layer with): https://chain-sight-nbhi.vercel.app/methodology/coverage
 > 2. **Open audit of the 8 blockers** still open for "regulated primary
 >    control" status: https://github.com/AIRWAfinance/ChainSight/blob/main/beta/AUDIT_AML_5_SPECIALISTS.md (verify link is public — repo must be public)
 >
@@ -137,7 +127,7 @@
 > ChainSight: open-source AML wallet screening, every flag cites FATF/OFAC.
 > Built for the OAM inspection reality your team handles.
 >
-> Honest scope: {{LIVE_URL}}/methodology/coverage
+> Honest scope: https://chain-sight-nbhi.vercel.app/methodology/coverage
 > Open blockers audit: https://github.com/AIRWAfinance/ChainSight/blob/main/beta/AUDIT_AML_5_SPECIALISTS.md (verify link is public — repo must be public)
 >
 > 20-min validation call this week? Question: post-blocker, would you
@@ -175,7 +165,7 @@
 >
 > Two artefacts before any call — both designed to save your time:
 >
-> 1. **Honest scope statement**: {{LIVE_URL}}/methodology/coverage
+> 1. **Honest scope statement**: https://chain-sight-nbhi.vercel.app/methodology/coverage
 > 2. **Public audit of every gap**: https://github.com/AIRWAfinance/ChainSight/blob/main/beta/AUDIT_AML_5_SPECIALISTS.md (verify link is public — repo must be public)
 >
 > The audit lists 8 blockers I need to close before ChainSight is sellable
@@ -201,7 +191,7 @@
 - [ ] **Bit2Me MLRO name** — search LinkedIn for "Bit2Me + AML" or "Bit2Me + Compliance," verify person + email format `firstname.lastname@bit2me.com`
 - [ ] **Young Platform MLRO** — same drill, email format `firstname.lastname@youngplatform.com`
 - [ ] **Bitpanda MLRO** — likely `firstname.lastname@bitpanda.com`. If you cannot confirm via LinkedIn, use Apollo.io / Hunter.io for a one-time lookup
-- [ ] **Vercel deploy confirmed** — `{{LIVE_URL}}/methodology/coverage` returns 200 (not 404). If 404, the deploy hasn't finished — wait, then test before sending
+- [ ] **Vercel deploy confirmed** — `https://chain-sight-nbhi.vercel.app/methodology/coverage` returns 200 (not 404). If 404, the deploy hasn't finished — wait, then test before sending
 - [ ] **GitHub link** — confirm `beta/AUDIT_AML_5_SPECIALISTS.md` is rendered on github.com (it's pushed in commit `ed91621`)
 
 ---
@@ -223,7 +213,7 @@ After all 3 land, repeat for the next 3 from `VALIDATION_TARGETS.md` (Bitstamp E
 Don't send a deck. Send the live demo URL + offer a 15-minute screen-share. Decks die in inboxes; live demos book second meetings.
 
 The walkthrough script (5 minutes):
-1. Open `https://chainsight.airwa.finance/scan` — paste a known sanctioned wallet (e.g. one from OFAC SDN list — `0x098B716B8Aaf21512996dC57EB0615e2383E2f96` is Tornado Cash router)
+1. Open `https://chain-sight-nbhi.vercel.app/scan` — paste a known sanctioned wallet (e.g. one from OFAC SDN list — `0x098B716B8Aaf21512996dC57EB0615e2383E2f96` is Tornado Cash router)
 2. Show the deterministic score + all citations
 3. Open the PDF — point at the rule version and citation footer
 4. Open `/methodology/coverage` — show the honest scope

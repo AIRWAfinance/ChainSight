@@ -28,7 +28,7 @@ words. Compliance leads are senior people; respect their time.
 > Worth 10 minutes? I'd value your read on whether the report shape
 > actually clears your audit checklist.
 >
-> Demo + signup: https://chainsight.airwa.finance/beta
+> Demo + signup: https://chain-sight-nbhi.vercel.app/beta
 >
 > — Jorge
 
@@ -50,7 +50,7 @@ words. Compliance leads are senior people; respect their time.
 > Beta is free while we tune it. Would you or someone on your compliance
 > side want a 10-minute walk-through?
 >
-> https://chainsight.airwa.finance/beta
+> https://chain-sight-nbhi.vercel.app/beta
 >
 > — Jorge
 
@@ -64,7 +64,7 @@ words. Compliance leads are senior people; respect their time.
 > compliance workflows on EVM chains. If you'd find that useful at
 > [COMPANY], I'd love to send a 10-minute demo. No pressure.
 >
-> https://chainsight.airwa.finance/beta
+> https://chain-sight-nbhi.vercel.app/beta
 
 ---
 
