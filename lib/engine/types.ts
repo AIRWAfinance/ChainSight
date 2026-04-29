@@ -105,7 +105,16 @@ export interface RiskReport {
     rulesFingerprint: string;
     rulesDate: string;
     rulesRevision: string;
+    sanctionsFreshness: SanctionsFreshnessSnapshot[];
   };
+}
+
+export interface SanctionsFreshnessSnapshot {
+  list: 'OFAC_SDN' | 'EU_CFSP' | 'UK_HMT' | 'UN_SC';
+  lastSyncedAt: string | null;
+  ageHours: number | null;
+  count: number;
+  isStale: boolean;
 }
 
 export interface NormalizedTransaction {

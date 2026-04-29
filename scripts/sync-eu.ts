@@ -68,9 +68,11 @@ function extract(text: string): Record[] {
 async function main(): Promise<void> {
   console.log(`[sync-eu] Fetching EU consolidated list...`);
   let records: Record[] = [];
+  let fetchOk = false;
   try {
     const text = await fetchList();
     records = extract(text);
+    fetchOk = true;
   } catch (err) {
     console.warn(`[sync-eu] WARN: ${(err as Error).message}`);
     console.warn(`[sync-eu] Writing empty list. Add addresses manually if needed.`);
@@ -79,11 +81,15 @@ async function main(): Promise<void> {
   console.log(`[sync-eu] Extracted ${records.length} unique ETH-format addresses`);
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
+  const lastSyncedAt = new Date().toISOString();
   writeFileSync(
     OUTPUT_PATH,
     JSON.stringify(
       {
-        lastUpdated: new Date().toISOString().split('T')[0],
+        list: 'EU_CFSP',
+        lastSyncedAt,
+        lastSyncOk: fetchOk,
+        count: records.length,
         source: EU_PUBLIC_URL,
         addresses: records,
       },

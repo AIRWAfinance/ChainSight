@@ -106,6 +106,12 @@ const SAMPLE_REPORT: RiskReport = {
     rulesFingerprint: 'sample0000000000',
     rulesDate: '2026-04-28',
     rulesRevision: 'r1',
+    sanctionsFreshness: [
+      { list: 'OFAC_SDN', lastSyncedAt: '2026-04-29T02:00:00.000Z', ageHours: 6, count: 3845, isStale: false },
+      { list: 'EU_CFSP', lastSyncedAt: '2026-04-29T02:00:00.000Z', ageHours: 6, count: 12, isStale: false },
+      { list: 'UK_HMT', lastSyncedAt: '2026-04-29T02:00:00.000Z', ageHours: 6, count: 8, isStale: false },
+      { list: 'UN_SC', lastSyncedAt: '2026-04-29T02:00:00.000Z', ageHours: 6, count: 0, isStale: false },
+    ],
   },
 };
 

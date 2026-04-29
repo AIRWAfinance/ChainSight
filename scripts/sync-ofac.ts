@@ -56,16 +56,27 @@ function extractEthAddresses(xml: string): SanctionedRecord[] {
 
 async function main(): Promise<void> {
   console.log(`[sync-ofac] Fetching ${SDN_URL}...`);
-  const xml = await fetchSDN();
-  const records = extractEthAddresses(xml);
+  let records: SanctionedRecord[] = [];
+  let fetchOk = false;
+  try {
+    const xml = await fetchSDN();
+    records = extractEthAddresses(xml);
+    fetchOk = true;
+  } catch (err) {
+    console.warn(`[sync-ofac] WARN: ${(err as Error).message}`);
+  }
   console.log(`[sync-ofac] Extracted ${records.length} unique ETH-format addresses`);
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
+  const lastSyncedAt = new Date().toISOString();
   writeFileSync(
     OUTPUT_PATH,
     JSON.stringify(
       {
-        lastUpdated: new Date().toISOString().split('T')[0],
+        list: 'OFAC_SDN',
+        lastSyncedAt,
+        lastSyncOk: fetchOk,
+        count: records.length,
         source: SDN_URL,
         addresses: records,
       },

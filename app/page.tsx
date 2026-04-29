@@ -9,6 +9,7 @@ import { SampleReport } from '@/components/SampleReport';
 import { TrustStrip } from '@/components/TrustStrip';
 import { FinalCta } from '@/components/FinalCta';
 import { Footer } from '@/components/Footer';
+import { SanctionsFreshnessBanner } from '@/components/SanctionsFreshnessBanner';
 
 export default function HomePage() {
   return (
@@ -16,6 +17,7 @@ export default function HomePage() {
       <FilmGrain />
       <Ticker />
       <Nav />
+      <SanctionsFreshnessBanner />
       <Mast />
       <StatsStrip />
       <ScanSection />

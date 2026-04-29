@@ -13,6 +13,7 @@ import {
 import { labelFor } from '../data/labels.js';
 import { computeGraph } from './graph.js';
 import { rulesVersionMeta } from './rules-version.js';
+import { getSanctionsFreshness } from '../data/sanctions.js';
 
 const VERSION = '0.7.0';
 
@@ -96,6 +97,13 @@ export function analyze(
       typologiesEvaluated: [...ALL_TYPOLOGIES],
       dataSourcesUsed,
       ...rulesVersionMeta(),
+      sanctionsFreshness: getSanctionsFreshness().map((f) => ({
+        list: f.list,
+        lastSyncedAt: f.lastSyncedAt,
+        ageHours: f.ageHours,
+        count: f.count,
+        isStale: f.isStale,
+      })),
     },
   };
 }

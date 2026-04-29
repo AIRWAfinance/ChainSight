@@ -53,9 +53,11 @@ function extract(xml: string): Record[] {
 async function main(): Promise<void> {
   console.log(`[sync-uk] Fetching ${UK_URL}...`);
   let records: Record[] = [];
+  let fetchOk = false;
   try {
     const xml = await fetchList();
     records = extract(xml);
+    fetchOk = true;
   } catch (err) {
     console.warn(`[sync-uk] WARN: ${(err as Error).message}`);
   }
@@ -63,11 +65,15 @@ async function main(): Promise<void> {
   console.log(`[sync-uk] Extracted ${records.length} unique ETH-format addresses`);
 
   mkdirSync(dirname(OUTPUT_PATH), { recursive: true });
+  const lastSyncedAt = new Date().toISOString();
   writeFileSync(
     OUTPUT_PATH,
     JSON.stringify(
       {
-        lastUpdated: new Date().toISOString().split('T')[0],
+        list: 'UK_HMT',
+        lastSyncedAt,
+        lastSyncOk: fetchOk,
+        count: records.length,
         source: UK_URL,
         addresses: records,
       },
